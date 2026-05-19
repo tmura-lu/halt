@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: halt_admin
       POSTGRES_PASSWORD: admin_password # OBSERVAÇÃO Trocar para algo seguro em produção
       POSTGRES_DB: halt_db
-      TZ: America/Sao_Paulo
+      TZ: America/Minas_Gerais
     ports:
       - "5432:5432"
     volumes:
