@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # O Banco de Dados do Halt
+  halt-db:
+    image: postgres:15-alpine
+    container_name: halt_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: halt_admin
+      POSTGRES_PASSWORD: admin_password # OBSERVAÇÃO Trocar para algo seguro em produção
+      POSTGRES_DB: halt_db
+      TZ: America/Sao_Paulo
+    ports:
+      - "5432:5432"
+    volumes:
+      - halt_pgdata:/var/lib/postgresql/data
+
+  # Interface visual para gerenciar o banco de dados
+  halt-pgadmin:
+    image: dpage/pgadmin4
+    container_name: halt_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@halt.app
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - halt-db
+
+volumes:
+  halt_pgdata:
