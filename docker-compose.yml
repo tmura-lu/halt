@@ -1,0 +1,22 @@
+services:
+  # Serviço do Django
+  halt-web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  
+  sqlite-viewer:
+    image: coleifer/sqlite-web
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/data
+    command: sqlite_web -H 0.0.0.0 -p 8080 /data/db.sqlite3
+    depends_on:
+      - halt-web

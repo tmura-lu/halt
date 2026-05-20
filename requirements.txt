@@ -1,0 +1,4 @@
+Django>=5.0,<6.0
+whitenoise>=6.0
+django-unfold>=0.20
+Jinja2>=3.1

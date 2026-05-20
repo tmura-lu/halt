@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block titulo %}HaltManager - Detalhes da Sessão{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-5">
+    <a href="/sessoes" class="btn btn-secondary mb-3">
+        <i class="fas fa-arrow-left"></i> Voltar
+    </a>
+    <div class="card">
+        <div class="card-header">
+            <h4><i class="fas fa-play-circle"></i> Sessão de {{ sessao.iniciado_em|date:"d/m/Y H:i" }}</h4>
+        </div>
+        <div class="card-body">
+            <p>
+                <em>Status:</em>
+                {% if sessao.finalizado_em %}
+                    <span class="badge bg-success">Finalizada em {{ sessao.finalizado_em|date:"d/m/Y H:i" }}</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Em andamento</span>
+                {% endif %}
+            </p>
+            <p><em>Observação:</em> {{ sessao.observacao|default:"Nenhuma" }}</p>
+        </div>
+    </div>
+    <br><br>
+</main>
+{% endblock %}

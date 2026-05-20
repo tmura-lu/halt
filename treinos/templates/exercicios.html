@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block titulo %}HaltManager - Exercícios{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-5">
+    <h1><i class="fas fa-list"></i> Exercícios</h1>
+    <hr>
+    {% for e in exercicios %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <em>Exercício:</em> {{ e.nome }}
+            </div>
+            <div class="card-body">
+                <p class="card-text"><em>Equipamento:</em> {{ e.equipamento|default:"Não informado" }}</p>
+                <p class="card-text"><em>Descrição:</em> {{ e.descricao|default:"Sem descrição" }}</p>
+                <a href="/exercicios/{{ e.id }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Ver detalhes
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-warning">Nenhum exercício cadastrado.</div>
+    {% endfor %}
+    <br><br>
+</main>
+{% endblock %}

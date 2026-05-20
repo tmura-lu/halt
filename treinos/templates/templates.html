@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block titulo %}HaltManager - Templates de Treino{% endblock %}
+
+{% block conteudo %}
+<main class="container mt-5">
+    <h1><i class="fas fa-clipboard-list"></i> Templates de Treino</h1>
+    <hr>
+    {% for t in templates %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <em>Template:</em> {{ t.nome }}
+            </div>
+            <div class="card-body">
+                <p class="card-text"><em>Descrição:</em> {{ t.descricao|default:"Sem descrição" }}</p>
+                <p class="card-text"><em>Criado em:</em> {{ t.criado_em|date:"d/m/Y" }}</p>
+                <a href="/templates/{{ t.id }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Ver detalhes
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-warning">Nenhum template cadastrado.</div>
+    {% endfor %}
+    <br><br>
+</main>
+{% endblock %}
