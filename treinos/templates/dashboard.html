@@ -1,40 +1,88 @@
-{% extends "base.html" %}
-
-{% block titulo %}HaltManager - Dashboard{% endblock %}
-
-{% block conteudo %}
-<main class="container mt-5">
-    <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
-    <hr>
-    <div class="row mt-4">
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-primary text-center">
-                <div class="card-body">
-                    <i class="fas fa-list fa-2x mb-2"></i>
-                    <h5 class="card-title">Exercícios</h5>
-                    <p class="card-text fs-3"><b>{{ data.0 }}</b></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-success text-center">
-                <div class="card-body">
-                    <i class="fas fa-clipboard-list fa-2x mb-2"></i>
-                    <h5 class="card-title">Templates</h5>
-                    <p class="card-text fs-3"><b>{{ data.1 }}</b></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white bg-warning text-center">
-                <div class="card-body">
-                    <i class="fas fa-play-circle fa-2x mb-2"></i>
-                    <h5 class="card-title">Minhas Sessões</h5>
-                    <p class="card-text fs-3"><b>{{ data.2 }}</b></p>
-                </div>
-            </div>
-        </div>
+﻿{% extends 'base.html' %} {% block titulo %}HaltManager - Dashboard{% endblock %} {% block conteudo %}
+<div class="container py-5">
+  <div
+    class="page-header d-flex flex-column flex-md-row align-items-start justify-content-between gap-3"
+  >
+    <div>
+      <span class="section-label">Painel</span>
+      <h1 class="h3 mb-1">Dashboard</h1>
+      <p class="text-muted mb-0">
+        Resumo rápido do seu treino, templates e sessões.
+      </p>
     </div>
-    <br><br>
-</main>
+    <a href="/templates" class="btn btn-accent btn-sm">
+      <i class="fas fa-plus me-1" aria-hidden="true"></i>Criar Template
+    </a>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+      <article class="stats-card p-4 h-100">
+        <div
+          class="d-flex align-items-center justify-content-between mb-3 gap-3"
+        >
+          <div>
+            <span class="detail-label">Exercícios</span>
+            <h2 class="mb-0">{{ data.0|default:'0' }}</h2>
+          </div>
+          <div class="icon-box icon-box-soft">
+            <i class="fas fa-dumbbell" aria-hidden="true"></i>
+          </div>
+        </div>
+        <p class="text-muted mb-0">Total de exercícios cadastrados.</p>
+      </article>
+    </div>
+    <div class="col">
+      <article class="stats-card p-4 h-100">
+        <div
+          class="d-flex align-items-center justify-content-between mb-3 gap-3"
+        >
+          <div>
+            <span class="detail-label">Templates</span>
+            <h2 class="mb-0">{{ data.1|default:'0' }}</h2>
+          </div>
+          <div class="icon-box icon-box-soft">
+            <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+          </div>
+        </div>
+        <p class="text-muted mb-0">Planos de treino criados.</p>
+      </article>
+    </div>
+    <div class="col">
+      <article class="stats-card p-4 h-100">
+        <div
+          class="d-flex align-items-center justify-content-between mb-3 gap-3"
+        >
+          <div>
+            <span class="detail-label">Sessões</span>
+            <h2 class="mb-0">{{ data.2|default:'0' }}</h2>
+          </div>
+          <div class="icon-box icon-box-soft">
+            <i class="fas fa-play-circle" aria-hidden="true"></i>
+          </div>
+        </div>
+        <p class="text-muted mb-0">Sessões em andamento ou finalizadas.</p>
+      </article>
+    </div>
+  </div>
+
+  <section class="mt-5">
+    <div class="card detail-card p-4">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+          <h2 class="section-title mb-2">Planeje sua próxima sessão</h2>
+          <p class="text-muted mb-0">
+            Use seus melhores templates para criar treinos consistentes e
+            objetivos.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <a href="/sessoes" class="btn btn-outline-primary btn-lg"
+            >Ver Sessões</a
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
 {% endblock %}

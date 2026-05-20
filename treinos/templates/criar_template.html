@@ -1,132 +1,191 @@
-{% extends "base.html" %}
+﻿{% extends 'base.html' %} {% block titulo %}Criar Template de Treino{% endblock %} {% block conteudo %}
+<main class="container py-5" style="max-width: 960px">
+  <div
+    class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-3 mb-4"
+  >
+    <div>
+      <h1 class="mb-2">Novo Template de Treino</h1>
+      <p class="text-muted">
+        Monte seu treino com exercícios e parâmetros de descanso.
+      </p>
+    </div>
+    <a
+      href="{% url 'lista_templates' %}"
+      class="btn btn-outline-secondary btn-sm"
+      >Voltar</a
+    >
+  </div>
 
-{% block titulo %}Criar Template de Treino{% endblock %}
+  {% if messages %} {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %} {% endif %}
 
-{% block conteudo %}
-<main class="container mt-4" style="max-width: 750px;">
-    <h2>Novo Template de Treino</h2>
+  <form method="POST" action="{% url 'criar_template' %}">
+    {% csrf_token %}
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <form method="POST" action="{% url 'criar_template' %}">
-        {% csrf_token %}
-
-        <!-- Dados gerais do template -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Nome do treino *</label>
-                    <input type="text" class="form-control" name="nome"
-                           placeholder="Ex: Treino A - Peito e Tríceps" required maxlength="60">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Descrição</label>
-                    <textarea class="form-control" name="descricao" rows="2"
-                              placeholder="Objetivo, observações..."></textarea>
-                </div>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" name="is_publico" id="is_publico">
-                    <label class="form-check-label" for="is_publico">
-                        Tornar público (outros usuários poderão ver)
-                    </label>
-                </div>
-            </div>
+    <div class="card form-card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Nome do treino *</label>
+          <input
+            type="text"
+            class="form-control"
+            name="nome"
+            placeholder="Ex: Treino A - Peito e Tríceps"
+            required
+            maxlength="60"
+          />
         </div>
-
-        <!-- Lista de exercícios -->
-        <h5>Exercícios</h5>
-        <div id="lista-exercicios">
-            <!-- Linhas adicionadas via JS -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Descrição</label>
+          <textarea
+            class="form-control"
+            name="descricao"
+            rows="3"
+            placeholder="Objetivo, observações..."
+          ></textarea>
         </div>
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            name="is_publico"
+            id="is_publico"
+          />
+          <label class="form-check-label" for="is_publico"
+            >Tornar público (outros usuários poderão ver)</label
+          >
+        </div>
+      </div>
+    </div>
 
-        <button type="button" class="btn btn-outline-primary mb-4" onclick="adicionarExercicio()">
-            + Adicionar exercício
+    <section class="mb-4">
+      <div
+        class="d-flex align-items-center justify-content-between mb-3 gap-3 flex-column flex-sm-row"
+      >
+        <div>
+          <h3 class="h5 mb-1">Exercícios do template</h3>
+          <p class="text-muted mb-0">
+            Adicione elementos e ajuste séries, descanso e ordem.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          onclick="adicionarExercicio()"
+        >
+          <i class="fas fa-plus me-1"></i>Adicionar exercício
         </button>
+      </div>
+      <div id="lista-exercicios"></div>
+    </section>
 
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Salvar Template</button>
-            <a href="{% url 'lista_templates' %}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
+    <div class="d-flex flex-column flex-sm-row gap-2">
+      <button type="submit" class="btn btn-accent">Salvar Template</button>
+      <a href="{% url 'lista_templates' %}" class="btn btn-outline-secondary"
+        >Cancelar</a
+      >
+    </div>
+  </form>
 </main>
 
-<!-- Template de linha de exercício (oculto, clonado pelo JS) -->
 <template id="linha-modelo">
-    <div class="card mb-2 linha-exercicio">
-        <div class="card-body py-2">
-            <div class="row align-items-center g-2">
-                <div class="col-1 text-muted fw-bold numero-linha"></div>
-
-                <div class="col-4">
-                    <select class="form-select form-select-sm" name="exercicio_id" required>
-                        <option value="">Selecione...</option>
-                        {% for ex in exercicios %}
-                            <option value="{{ ex.id }}">{{ ex.nome }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-2">
-                    <input type="hidden" name="ordem" class="campo-ordem">
-                    <input type="number" class="form-control form-control-sm" name="series_sugeridas"
-                           placeholder="Séries" min="1" max="20">
-                </div>
-
-                <div class="col-2">
-                    <input type="number" class="form-control form-control-sm" name="descanso_segundos"
-                           placeholder="Descanso (s)" min="0">
-                </div>
-
-                <div class="col-2 d-flex gap-1">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="moverLinha(this, -1)">↑</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="moverLinha(this, 1)">↓</button>
-                </div>
-
-                <div class="col-1">
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerLinha(this)">✕</button>
-                </div>
-            </div>
+  <div class="card mb-3 linha-exercicio">
+    <div class="card-body py-3">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-md-1 text-muted fw-semibold numero-linha"></div>
+        <div class="col-12 col-md-4">
+          <select
+            class="form-select form-select-sm"
+            name="exercicio_id"
+            required
+          >
+            <option value="">Selecione...</option>
+            {% for ex in exercicios %}
+            <option value="{{ ex.id }}">{{ ex.nome }}</option>
+            {% endfor %}
+          </select>
         </div>
+        <div class="col-6 col-md-2">
+          <input type="hidden" name="ordem" class="campo-ordem" />
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="series_sugeridas"
+            placeholder="Séries"
+            min="1"
+            max="20"
+          />
+        </div>
+        <div class="col-6 col-md-2">
+          <input
+            type="number"
+            class="form-control form-control-sm"
+            name="descanso_segundos"
+            placeholder="Descanso (s)"
+            min="0"
+          />
+        </div>
+        <div class="col-12 col-md-3 d-flex gap-2 justify-content-end">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick="moverLinha(this, -1)"
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            onclick="moverLinha(this, 1)"
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            onclick="removerLinha(this)"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
-    function adicionarExercicio() {
-        const modelo = document.getElementById('linha-modelo');
-        const clone = modelo.content.cloneNode(true);
-        document.getElementById('lista-exercicios').appendChild(clone);
-        atualizarOrdens();
-    }
+  function adicionarExercicio() {
+    const modelo = document.getElementById("linha-modelo");
+    const clone = modelo.content.cloneNode(true);
+    document.getElementById("lista-exercicios").appendChild(clone);
+    atualizarOrdens();
+  }
 
-    function removerLinha(btn) {
-        btn.closest('.linha-exercicio').remove();
-        atualizarOrdens();
-    }
+  function removerLinha(btn) {
+    btn.closest(".linha-exercicio").remove();
+    atualizarOrdens();
+  }
 
-    function moverLinha(btn, direcao) {
-        const linha = btn.closest('.linha-exercicio');
-        const container = document.getElementById('lista-exercicios');
-        const linhas = [...container.querySelectorAll('.linha-exercicio')];
-        const idx = linhas.indexOf(linha);
-        const alvo = linhas[idx + direcao];
-        if (!alvo) return;
-        if (direcao === -1) container.insertBefore(linha, alvo);
-        else alvo.after(linha);
-        atualizarOrdens();
-    }
+  function moverLinha(btn, direcao) {
+    const linha = btn.closest(".linha-exercicio");
+    const container = document.getElementById("lista-exercicios");
+    const linhas = [...container.querySelectorAll(".linha-exercicio")];
+    const idx = linhas.indexOf(linha);
+    const alvo = linhas[idx + direcao];
+    if (!alvo) return;
+    if (direcao === -1) container.insertBefore(linha, alvo);
+    else alvo.after(linha);
+    atualizarOrdens();
+  }
 
-    function atualizarOrdens() {
-        document.querySelectorAll('.linha-exercicio').forEach((linha, i) => {
-            linha.querySelector('.numero-linha').textContent = i + 1;
-            linha.querySelector('.campo-ordem').value = i + 1;
-        });
-    }
+  function atualizarOrdens() {
+    document.querySelectorAll(".linha-exercicio").forEach((linha, i) => {
+      linha.querySelector(".numero-linha").textContent = i + 1;
+      linha.querySelector(".campo-ordem").value = i + 1;
+    });
+  }
 
-    // Começa já com uma linha
-    adicionarExercicio();
+  adicionarExercicio();
 </script>
 {% endblock %}

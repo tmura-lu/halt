@@ -1,21 +1,30 @@
-{% extends "base.html" %}
+﻿{% extends 'base.html' %}
 
 {% block titulo %}HaltManager - {{ treino_template.nome }}{% endblock %}
 
 {% block conteudo %}
-<main class="container mt-5">
-    <a href="/templates" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left"></i> Voltar
-    </a>
-    <div class="card">
-        <div class="card-header">
-            <h4><i class="fas fa-clipboard-list"></i> {{ treino_template.nome }}</h4>
-        </div>
-        <div class="card-body">
-            <p><em>Descrição:</em> {{ treino_template.descricao|default:"Sem descrição" }}</p>
-            <p><em>Criado em:</em> {{ treino_template.criado_em|date:"d/m/Y" }}</p>
-        </div>
+<main class="container py-5">
+  <div class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-3 mb-4">
+    <div>
+      <h1 class="mb-2">{{ treino_template.nome }}</h1>
+      <p class="text-muted">Detalhes do template de treino.</p>
     </div>
-    <br><br>
+    <a href="/templates" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
+  </div>
+
+  <div class="card detail-card shadow-sm">
+    <div class="card-body">
+      <div class="row gy-4">
+        <div class="col-12">
+          <h5 class="mb-2">Descrição</h5>
+          <p class="text-muted">{{ treino_template.descricao|default:'Sem descrição disponível.' }}</p>
+        </div>
+        <div class="col-md-6">
+          <h5 class="mb-2">Criado em</h5>
+          <p class="text-muted">{{ treino_template.criado_em|date:'d/m/Y' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 {% endblock %}

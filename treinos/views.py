@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
-from .models import Exercicio, TreinoTemplate, SessaoTreino, TreinoExercicioTemplate, Exercicio
+from .models import Exercicio, TreinoTemplate, SessaoTreino, TreinoExercicioTemplate
 
 def principal(request):
     template = loader.get_template('principal.html')
@@ -28,24 +28,6 @@ def exercicio_detalhes(request, id):
     return HttpResponse(template.render(context, request))
 
 
-def templates(request):
-    templates = TreinoTemplate.objects.all().values()
-    context = {
-        'templates': templates,
-    }
-    template = loader.get_template('templates.html')
-    return HttpResponse(template.render(context, request))
-
-
-def template_detalhes(request, id):
-    treino_template = TreinoTemplate.objects.get(id=id)
-    context = {
-        'treino_template': treino_template,
-    }
-    template = loader.get_template('template_detalhes.html')
-    return HttpResponse(template.render(context, request))
-
-
 @login_required(login_url="/auth/login")
 def sessoes(request):
     sessoes = SessaoTreino.objects.filter(usuario=request.user).values()
@@ -53,16 +35,6 @@ def sessoes(request):
         'sessoes': sessoes,
     }
     template = loader.get_template('sessoes.html')
-    return HttpResponse(template.render(context, request))
-
-
-@login_required(login_url="/auth/login")
-def sessao_detalhes(request, id):
-    sessao = SessaoTreino.objects.get(id=id)
-    context = {
-        'sessao': sessao,
-    }
-    template = loader.get_template('sessao_detalhes.html')
     return HttpResponse(template.render(context, request))
 
 
@@ -77,6 +49,17 @@ def dashboard(request):
     }
     template = loader.get_template('dashboard.html')
     return HttpResponse(template.render(context, request))
+
+
+@login_required(login_url="/auth/login")
+def sessao_detalhes(request, id):
+    sessao = SessaoTreino.objects.get(id=id)
+    context = {
+        'sessao': sessao,
+    }
+    template = loader.get_template('sessao_detalhes.html')
+    return HttpResponse(template.render(context, request))
+
 
 
 

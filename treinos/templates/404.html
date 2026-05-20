@@ -1,15 +1,16 @@
-{% extends "base.html" %}
-
-{% load static %}
-
-{% block titulo %}
-    Halt - Erro 404
-{% endblock %}
-
-{% block conteudo %}
-    <main class="container mt-5">
-        <h1>Halt</h1>
-        <h4>Página não encontrada</h4>
-        <p>Não existe uma página para a URL solicitada.</p>
-    </main>
+﻿{% extends "base.html" %} {% load static %} {% block titulo %}HaltManager - Erro
+404{% endblock %} {% block conteudo %}
+<div class="container py-5">
+  <section class="hero-section p-5 text-center">
+    <div class="mb-4">
+      <span class="hero-eyebrow">Erro 404</span>
+      <h1 class="hero-title mt-3">Página não encontrada</h1>
+    </div>
+    <p class="text-muted mb-4">
+      Desculpe, não encontramos a página que você está procurando. Verifique o
+      link ou volte para a página inicial.
+    </p>
+    <a href="/" class="btn btn-accent btn-lg">Voltar para o início</a>
+  </section>
+</div>
 {% endblock %}

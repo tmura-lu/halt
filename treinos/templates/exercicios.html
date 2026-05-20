@@ -1,27 +1,68 @@
-{% extends "base.html" %}
+﻿{% extends 'base.html' %} {% block titulo %}Exercícios — HaltManager{% endblock %} {% block conteudo %}
+<div class="container py-5">
+  <!-- Page header -->
+  <div
+    class="page-header d-flex flex-column flex-md-row align-items-start justify-content-between gap-3"
+  >
+    <div>
+      <span class="section-label">Biblioteca</span>
+      <h1 class="h3 mb-1">Exercícios</h1>
+      <p class="text-muted mb-0" style="font-size: 0.875rem">
+        Revise e acesse seus exercícios com facilidade.
+      </p>
+    </div>
+    <a href="/templates" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-clipboard-list me-1" aria-hidden="true"></i>Ver Templates
+    </a>
+  </div>
 
-{% block titulo %}HaltManager - Exercícios{% endblock %}
-
-{% block conteudo %}
-<main class="container mt-5">
-    <h1><i class="fas fa-list"></i> Exercícios</h1>
-    <hr>
+  {% if exercicios %}
+  <div class="row row-cols-1 row-cols-md-2 g-4">
     {% for e in exercicios %}
-        <div class="card mb-3">
-            <div class="card-header">
-                <em>Exercício:</em> {{ e.nome }}
+    <div class="col">
+      <article class="card h-100">
+        <div class="card-body p-4">
+          <div
+            class="d-flex align-items-start justify-content-between gap-3 mb-3"
+          >
+            <div class="icon-box icon-box-soft flex-shrink-0">
+              <i class="fas fa-dumbbell fa-sm" aria-hidden="true"></i>
             </div>
-            <div class="card-body">
-                <p class="card-text"><em>Equipamento:</em> {{ e.equipamento|default:"Não informado" }}</p>
-                <p class="card-text"><em>Descrição:</em> {{ e.descricao|default:"Sem descrição" }}</p>
-                <a href="/exercicios/{{ e.id }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-eye"></i> Ver detalhes
-                </a>
-            </div>
+            <span class="badge badge-accent badge-status ms-auto"
+              >Exercício</span
+            >
+          </div>
+          <h2 class="card-title h6 mb-1">{{ e.nome }}</h2>
+          <p class="text-muted mb-2" style="font-size: 0.8125rem">
+            Equipamento: {{ e.equipamento|default:'Não informado' }}
+          </p>
+          <p class="text-muted mb-0" style="font-size: 0.875rem">
+            {{ e.descricao|default:'Sem descrição disponível.' }}
+          </p>
         </div>
-    {% empty %}
-        <div class="alert alert-warning">Nenhum exercício cadastrado.</div>
+        <div class="card-footer d-flex justify-content-end py-3 px-4">
+          <a
+            href="/exercicios/{{ e.id }}"
+            class="btn btn-sm btn-outline-primary"
+          >
+            <i class="fas fa-eye me-1" aria-hidden="true"></i>Ver detalhes
+          </a>
+        </div>
+      </article>
+    </div>
     {% endfor %}
-    <br><br>
-</main>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-dumbbell" aria-hidden="true"></i>
+    </div>
+    <h3 class="h5 mb-2">Nenhum exercício cadastrado</h3>
+    <p class="text-muted" style="font-size: 0.875rem">
+      Adicione exercícios para começar a montar seus treinos.
+    </p>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

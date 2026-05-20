@@ -1,76 +1,190 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block titulo %}{% endblock %}</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <link rel="stylesheet" href="{% static 'mystyles.css' %}">
-    </head>
-    <body>
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-dark">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="/"><i class="fas fa-dumbbell"></i> HaltManager</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/"><i class="fas fa-home"></i> Principal</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/exercicios"><i class="fas fa-list"></i> Exercícios</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/templates"><i class="fas fa-clipboard-list"></i> Templates</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/sessoes"><i class="fas fa-play-circle"></i> Sessões</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
-                            </li>
-                        </ul>
-                        <ul class="navbar-nav ms-auto">
-                            {% if user.is_authenticated %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><b>Usuário:</b> {{ user.username }}</a>
-                                </li>
-                                    <a class="navbar-brand" href="#">
-                                        <img src="{% static 'img_avatar.png' %}" alt="Avatar" style="width:36px;" class="rounded-pill">
-                                    </a>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                                </li>
-                            {% else %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/auth/login"><i class="fas fa-sign-in-alt"></i> Login</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/auth/cadastro"><i class="fas fa-user-plus"></i> Cadastre-se</a>
-                                </li>
-                            {% endif %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin"><i class="fa-solid fa-lock"></i> Admin</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
+﻿{% load static %}
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="HaltManager — Gestão de treinos com clareza e ritmo."
+    />
+    <title>{% block titulo %}HaltManager{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'mystyles.css' %}" />
+  </head>
+  <body class="page-wrapper">
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <header class="site-header">
+      <nav class="navbar navbar-expand-lg" aria-label="Navegação principal">
+        <div class="container">
+          <!-- Brand -->
+          <a class="navbar-brand" href="/">
+            <span class="brand-mark" aria-hidden="true">H</span>
+            <div>
+              <div class="brand-name">HaltManager</div>
+              <div class="brand-sub">Gestão de treinos</div>
+            </div>
+          </a>
 
-        {% block conteudo %}
-        {% endblock %}
+          <!-- Mobile toggle -->
+          <button
+            class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Abrir menu"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
-        <footer class="text-white text-center p-3 mt-5">
-            <p>&copy; HaltManager. Todos os direitos reservados.</p>
-        </footer>
+          <!-- Nav links + controls -->
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Principal</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/exercicios">Exercícios</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/templates">Templates</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/sessoes">Sessões</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+              </li>
+            </ul>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+            <!-- Right controls -->
+            <div class="d-flex align-items-center gap-2">
+              <!-- Theme toggle -->
+              <button
+                id="themeToggle"
+                class="btn"
+                type="button"
+                aria-label="Alternar tema"
+                title="Alternar tema"
+              >
+                <i class="fas fa-moon" aria-hidden="true"></i>
+              </button>
+
+              <div class="divider d-none d-lg-block"></div>
+
+              {% if user.is_authenticated %}
+              <span class="nav-username d-none d-lg-inline"
+                >{{ user.username }}</span
+              >
+              <a
+                class="btn btn-outline-secondary btn-sm"
+                href="/auth/logout"
+                aria-label="Sair"
+              >
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                <span class="d-lg-none ms-1">Sair</span>
+              </a>
+              {% else %}
+              <a class="btn btn-outline-primary btn-sm" href="/auth/login">
+                <i class="fas fa-sign-in-alt me-1" aria-hidden="true"></i>Login
+              </a>
+              <a class="btn btn-accent btn-sm" href="/auth/cadastro">
+                <i class="fas fa-user-plus me-1" aria-hidden="true"></i
+                >Cadastre-se
+              </a>
+              {% endif %}
+
+              <a
+                class="btn btn-sm text-muted"
+                href="/admin"
+                aria-label="Área administrativa"
+                title="Admin"
+                style="padding: 0.25rem 0.5rem; opacity: 0.5"
+              >
+                <i class="fas fa-lock fa-xs" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ── Main content ────────────────────────────────────── -->
+    <main class="page-content" id="main-content">
+      {% block conteudo %}{% endblock %}
+    </main>
+
+    <!-- ── Footer ─────────────────────────────────────────── -->
+    <footer class="site-footer">
+      <div class="container">
+        <p>
+          &copy; HaltManager &mdash;
+          <span>Clareza e ritmo para seus treinos.</span>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        const html = document.documentElement;
+        const body = document.body;
+        const toggle = document.getElementById("themeToggle");
+
+        const applyTheme = (theme) => {
+          html.setAttribute("data-bs-theme", theme);
+          body.classList.toggle("theme-dark", theme === "dark");
+          body.classList.toggle("theme-light", theme !== "dark");
+          toggle.innerHTML =
+            theme === "dark"
+              ? '<i class="fas fa-sun" aria-hidden="true"></i>'
+              : '<i class="fas fa-moon" aria-hidden="true"></i>';
+          toggle.setAttribute(
+            "title",
+            theme === "dark" ? "Modo claro" : "Modo escuro",
+          );
+        };
+
+        const saved = localStorage.getItem("haltTheme");
+        const preferred =
+          saved ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        applyTheme(preferred);
+
+        toggle.addEventListener("click", () => {
+          const next = body.classList.contains("theme-dark") ? "light" : "dark";
+          applyTheme(next);
+          localStorage.setItem("haltTheme", next);
+        });
+
+        // Mark active nav link
+        const path = window.location.pathname;
+        document.querySelectorAll(".navbar .nav-link").forEach((link) => {
+          const href = link.getAttribute("href");
+          if (
+            href &&
+            (path === href || (href !== "/" && path.startsWith(href)))
+          ) {
+            link.classList.add("active");
+            link.setAttribute("aria-current", "page");
+          }
+        });
+      })();
+    </script>
+    {% block extra_scripts %}{% endblock %}
+  </body>
 </html>
