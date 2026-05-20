@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block titulo %}HaltManager - Detalhes da Sessão{% endblock %}
 
@@ -6,32 +6,33 @@
 <main class="container py-5">
   <div class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-3 mb-4">
     <div>
-      <h1 class="mb-2">Sessão em {{ sessao.iniciado_em|date:'d/m/Y H:i' }}</h1>
-      <p class="text-muted">Resumo da sessão e status atual.</p>
+      <span class="section-label">Sessão</span>
+      <h1 class="h3 mb-1">Sessão em {{ sessao.iniciado_em|date:'d/m/Y H:i' }}</h1>
+      <p class="text-muted mb-0">Resumo da sessão e status atual.</p>
     </div>
-    <a href="/sessoes" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
+    <a href="/sessoes/" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
   </div>
 
-  <div class="card detail-card shadow-sm">
-    <div class="card-body">
-      <div class="row gy-4">
-        <div class="col-md-6">
-          <h5 class="mb-2">Status</h5>
+  <div class="card detail-card p-4">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <span class="detail-label">Status</span>
+        <div>
           {% if sessao.finalizado_em %}
-          <span class="badge bg-success badge-status">Finalizada</span>
-          <p class="text-muted mt-2">Finalizada em {{ sessao.finalizado_em|date:'d/m/Y H:i' }}</p>
+          <span class="badge badge-success badge-status">Finalizada</span>
+          <p class="small text-muted mt-2 mb-0">Finalizada em {{ sessao.finalizado_em|date:'d/m/Y H:i' }}</p>
           {% else %}
-          <span class="badge bg-warning text-dark badge-status">Em andamento</span>
+          <span class="badge badge-warning badge-status">Em andamento</span>
           {% endif %}
         </div>
-        <div class="col-md-6">
-          <h5 class="mb-2">Início</h5>
-          <p class="text-muted">{{ sessao.iniciado_em|date:'d/m/Y H:i' }}</p>
-        </div>
-        <div class="col-12">
-          <h5 class="mb-2">Observação</h5>
-          <p class="text-muted">{{ sessao.observacao|default:'Nenhuma.' }}</p>
-        </div>
+      </div>
+      <div class="col-md-6">
+        <span class="detail-label">Início</span>
+        <p class="detail-value">{{ sessao.iniciado_em|date:'d/m/Y H:i' }}</p>
+      </div>
+      <div class="col-12">
+        <span class="detail-label">Observação</span>
+        <p class="detail-value">{{ sessao.observacao|default:'Nenhuma.' }}</p>
       </div>
     </div>
   </div>

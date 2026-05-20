@@ -1,30 +1,51 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
-{% block titulo %}HaltManager - {{ treino_template.nome }}{% endblock %}
+{% block titulo %}HaltManager - {{ template.nome }}{% endblock %}
 
 {% block conteudo %}
 <main class="container py-5">
   <div class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-3 mb-4">
     <div>
-      <h1 class="mb-2">{{ treino_template.nome }}</h1>
-      <p class="text-muted">Detalhes do template de treino.</p>
+      <span class="section-label">Template</span>
+      <h1 class="h3 mb-1">{{ template.nome }}</h1>
+      <p class="text-muted mb-0">Detalhes do template de treino.</p>
     </div>
-    <a href="/templates" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
+    <a href="/templates/" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
   </div>
 
-  <div class="card detail-card shadow-sm">
-    <div class="card-body">
-      <div class="row gy-4">
-        <div class="col-12">
-          <h5 class="mb-2">Descrição</h5>
-          <p class="text-muted">{{ treino_template.descricao|default:'Sem descrição disponível.' }}</p>
-        </div>
-        <div class="col-md-6">
-          <h5 class="mb-2">Criado em</h5>
-          <p class="text-muted">{{ treino_template.criado_em|date:'d/m/Y' }}</p>
-        </div>
+  <div class="card detail-card p-4">
+    <div class="row g-4">
+      <div class="col-12">
+        <span class="detail-label">Descrição</span>
+        <p class="detail-value">{{ template.descricao|default:'Sem descrição disponível.' }}</p>
+      </div>
+      <div class="col-md-6">
+        <span class="detail-label">Criado em</span>
+        <p class="detail-value">{{ template.criado_em|date:'d/m/Y' }}</p>
       </div>
     </div>
   </div>
+
+  <section class="mt-5">
+    <span class="section-label">Exercícios do Roteiro</span>
+    <div class="list-card mt-3">
+      {% for ex in exercicios %}
+      <div class="list-card-row">
+        <div class="exercise-row-number">#{{ ex.ordem }}</div>
+        <div class="flex-grow-1">
+          <h4 class="h6 mb-1" style="font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text);">{{ ex.exercicio.nome }}</h4>
+          <p class="small text-muted mb-0">
+            {% if ex.series_sugeridas %}{{ ex.series_sugeridas }} séries{% endif %}
+            {% if ex.descanso_segundos %}{% if ex.series_sugeridas %} • {% endif %}Descanso: {{ ex.descanso_segundos }}s{% endif %}
+          </p>
+        </div>
+      </div>
+      {% empty %}
+      <div class="p-4 text-center text-muted">
+        Nenhum exercício associado a este template.
+      </div>
+      {% endfor %}
+    </div>
+  </section>
 </main>
 {% endblock %}

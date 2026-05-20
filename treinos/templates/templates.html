@@ -1,5 +1,5 @@
-﻿{% extends 'base.html' %} {% block titulo %}HaltManager - Templates de Treino{%
-endblock %} {% block conteudo %}
+{% extends 'base.html' %} {% block titulo %}HaltManager - Templates de Treino{% endblock %}
+{% block conteudo %}
 <div class="container py-5">
   <div
     class="page-header d-flex flex-column flex-md-row align-items-start justify-content-between gap-3"
@@ -11,7 +11,7 @@ endblock %} {% block conteudo %}
         Organize seus planos e reutilize treinos com agilidade.
       </p>
     </div>
-    <a href="/criar-template" class="btn btn-accent btn-sm">
+    <a href="/templates/novo/" class="btn btn-accent btn-sm">
       <i class="fas fa-plus me-1" aria-hidden="true"></i>Criar Template
     </a>
   </div>
@@ -20,31 +20,21 @@ endblock %} {% block conteudo %}
   <div class="row row-cols-1 row-cols-md-2 g-4">
     {% for t in templates %}
     <div class="col">
-      <article class="card h-100">
-        <div class="card-body">
-          <div
-            class="d-flex align-items-start justify-content-between gap-3 mb-3"
-          >
-            <div>
-              <h5 class="card-title mb-1">{{ t.nome }}</h5>
-              <p class="text-muted mb-2">
-                {{ t.descricao|default:'Sem descrição disponível.' }}
-              </p>
-            </div>
-            <span class="badge badge-accent badge-status">Template</span>
+      <article class="card stats-card h-100 p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
+          <div class="icon-box icon-box-soft">
+            <i class="fas fa-clipboard-list fa-sm" aria-hidden="true"></i>
           </div>
-          <p class="small text-muted mb-0">
-            Criado em {{ t.criado_em|date:'d/m/Y' }}
-          </p>
+          <span class="badge badge-accent badge-status">Template</span>
         </div>
-        <div class="card-footer text-end bg-surface border-top-0">
-          <a
-            href="/templates/{{ t.id }}"
-            class="btn btn-sm btn-outline-primary"
-          >
-            <i class="fas fa-eye me-1" aria-hidden="true"></i>Ver detalhes
-          </a>
-        </div>
+        <h3 class="card-title h5 mb-2">{{ t.nome }}</h3>
+        <p class="small text-muted mb-3">
+          <i class="fas fa-calendar me-1 opacity-75" aria-hidden="true"></i>Criado em {{ t.criado_em|date:'d/m/Y' }}
+        </p>
+        <p class="text-muted mb-0" style="font-size: 0.875rem; line-height: 1.5;">
+          {{ t.descricao|default:'Sem descrição disponível.' }}
+        </p>
+        <a href="/templates/{{ t.id }}/" class="stretched-link" aria-label="Ver detalhes de {{ t.nome }}"></a>
       </article>
     </div>
     {% endfor %}

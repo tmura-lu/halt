@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <!doctype html>
 <html lang="pt-BR" data-bs-theme="light">
   <head>
@@ -55,16 +55,16 @@
                 <a class="nav-link" href="/">Principal</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/exercicios">Exercícios</a>
+                <a class="nav-link" href="/exercicios/">Exercícios</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/templates">Templates</a>
+                <a class="nav-link" href="/templates/">Templates</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/sessoes">Sessões</a>
+                <a class="nav-link" href="/sessoes/">Sessões</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/dashboard/">Dashboard</a>
               </li>
             </ul>
 
@@ -165,7 +165,9 @@
             : "light");
         applyTheme(preferred);
 
-        toggle.addEventListener("click", () => {
+        toggle.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const next = body.classList.contains("theme-dark") ? "light" : "dark";
           applyTheme(next);
           localStorage.setItem("haltTheme", next);

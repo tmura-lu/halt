@@ -7,8 +7,18 @@ from django.contrib import messages
 from .models import Exercicio, TreinoTemplate, SessaoTreino, TreinoExercicioTemplate
 
 def principal(request):
+    qtd_exercicios = Exercicio.objects.count()
+    if request.user.is_authenticated:
+        qtd_templates = TreinoTemplate.objects.filter(usuario=request.user).count()
+        qtd_sessoes = SessaoTreino.objects.filter(usuario=request.user).count()
+    else:
+        qtd_templates = 0
+        qtd_sessoes = 0
+    context = {
+        'data': [qtd_exercicios, qtd_templates, qtd_sessoes],
+    }
     template = loader.get_template('principal.html')
-    return HttpResponse(template.render({}, request))
+    return HttpResponse(template.render(context, request))
 
 def exercicios(request):
     exercicios = Exercicio.objects.all().values()

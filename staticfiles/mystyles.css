@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    HaltManager — Design System
    Light: warm rose palette  |  Dark: deep purple palette
    ========================================================= */
@@ -398,6 +398,7 @@ body.theme-dark .btn-outline-primary:hover {
 .stats-card,
 .detail-card,
 .form-card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -485,6 +486,24 @@ body.theme-dark .form-select:focus {
 }
 body.theme-dark .badge-accent {
   background: rgba(192, 132, 232, 0.18);
+  color: var(--primary);
+}
+
+.badge-success {
+  background: rgba(46, 204, 113, 0.15);
+  color: #27ae60;
+}
+body.theme-dark .badge-success {
+  background: rgba(46, 204, 113, 0.25);
+  color: var(--primary);
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+body.theme-dark .badge-warning {
+  background: rgba(245, 158, 11, 0.25);
   color: var(--primary);
 }
 
