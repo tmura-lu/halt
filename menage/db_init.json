@@ -1,0 +1,420 @@
+[
+  {
+    "model": "usuarios.usuario",
+    "pk": 1,
+    "fields": {
+      "username": "joao_maromba",
+      "email": "joao@email.com",
+      "password": "pbkdf2_sha256$870000$rfG7xPzL931q$dummy_hash_for_testing_purposes_only",
+      "nome": "João Silva",
+      "data_nascimento": "1995-08-15",
+      "sexo": "M",
+      "imagem_perfil_url": "https://cdn.exemplo.com/perfil/joao.jpg",
+      "bio": "Focado no shape 💪 Estudante de Ed. Física.",
+      "peso_atual": "82.50",
+      "altura_cm": "178.00",
+      "is_privado": false,
+      "streak_atual": 5,
+      "maior_streak": 12,
+      "is_staff": false,
+      "is_superuser": false,
+      "is_active": true,
+      "date_joined": "2026-05-21T12:00:00Z"
+    }
+  },
+  {
+    "model": "usuarios.usuario",
+    "pk": 2,
+    "fields": {
+      "username": "maria_fit",
+      "email": "maria@email.com",
+      "password": "pbkdf2_sha256$870000$rfG7xPzL931q$dummy_hash_for_testing_purposes_only",
+      "nome": "Maria Oliveira",
+      "data_nascimento": "1998-03-22",
+      "sexo": "F",
+      "imagem_perfil_url": "https://cdn.exemplo.com/perfil/maria.jpg",
+      "bio": "Corrida 🏃‍♀️ e musculação 🏋️‍♀️ Buscando minha melhor versão.",
+      "peso_atual": "61.20",
+      "altura_cm": "165.00",
+      "is_privado": true,
+      "streak_atual": 8,
+      "maior_streak": 20,
+      "is_staff": false,
+      "is_superuser": false,
+      "is_active": true,
+      "date_joined": "2026-05-21T12:00:00Z"
+    }
+  },
+  {
+    "model": "usuarios.usuarioseguimento",
+    "pk": 1,
+    "fields": {
+      "seguidor": 1,
+      "seguido": 2,
+      "is_ativo": true,
+      "criado_em": "2026-05-21T12:01:00Z"
+    }
+  },
+  {
+    "model": "usuarios.usuarioseguimento",
+    "pk": 2,
+    "fields": {
+      "seguidor": 2,
+      "seguido": 1,
+      "is_ativo": true,
+      "criado_em": "2026-05-21T12:02:00Z"
+    }
+  },
+  {
+    "model": "usuarios.conquista",
+    "pk": 1,
+    "fields": {
+      "nome": "Rato de Academia",
+      "descricao": "Complete 30 treinos seguidos sem quebrar o streak.",
+      "icone_url": "https://cdn.exemplo.com/badges/rato.png",
+      "xp_recompensa": 500
+    }
+  },
+  {
+    "model": "usuarios.conquista",
+    "pk": 2,
+    "fields": {
+      "nome": "Força Monstra",
+      "descricao": "Alcance mais de 100kg no supino ou agachamento.",
+      "icone_url": "https://cdn.exemplo.com/badges/forca.png",
+      "xp_recompensa": 300
+    }
+  },
+  {
+    "model": "usuarios.usuarioconquista",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "conquista": 2,
+      "conquistado_em": "2026-05-21T12:05:00Z"
+    }
+  },
+  {
+    "model": "usuarios.usuarioconquista",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "conquista": 1,
+      "conquistado_em": "2026-05-21T12:06:00Z"
+    }
+  },
+  {
+    "model": "usuarios.notificacao",
+    "pk": 1,
+    "fields": {
+      "usuario_destino": 2,
+      "usuario_origem": 1,
+      "tipo": "SEGUIMENTO",
+      "mensagem": "joao_maromba começou a seguir você.",
+      "is_lida": false,
+      "criado_em": "2026-05-21T12:01:00Z"
+    }
+  },
+  {
+    "model": "usuarios.notificacao",
+    "pk": 2,
+    "fields": {
+      "usuario_destino": 1,
+      "usuario_origem": 2,
+      "tipo": "CURTIDA",
+      "mensagem": "maria_fit curtiu sua publicação.",
+      "is_lida": true,
+      "criado_em": "2026-05-21T12:15:00Z"
+    }
+  },
+  {
+    "model": "treinos.musculo",
+    "pk": 1,
+    "fields": {
+      "nome": "Peitoral"
+    }
+  },
+  {
+    "model": "treinos.musculo",
+    "pk": 2,
+    "fields": {
+      "nome": "Tríceps"
+    }
+  },
+  {
+    "model": "treinos.musculo",
+    "pk": 3,
+    "fields": {
+      "nome": "Quadríceps"
+    }
+  },
+  {
+    "model": "treinos.exercicio",
+    "pk": 1,
+    "fields": {
+      "nome": "Supino Reto com Barra",
+      "imagem_url": "https://cdn.exemplo.com/exercicios/supino.jpg",
+      "gif_url": "https://cdn.exemplo.com/exercicios/supino.gif",
+      "descricao": "Deitado no banco reto, desça a barra até o peito.",
+      "equipamento": "Barra e Banco Reto",
+      "categoria": "Peito",
+      "criado_em": "2026-05-21T12:00:00Z"
+    }
+  },
+  {
+    "model": "treinos.exercicio",
+    "pk": 2,
+    "fields": {
+      "nome": "Agachamento Livre",
+      "imagem_url": "https://cdn.exemplo.com/exercicios/agachamento.jpg",
+      "gif_url": "https://cdn.exemplo.com/exercicios/agachamento.gif",
+      "descricao": "Agache até que as coxas fiquem paralelas ao chão.",
+      "equipamento": "Barra Livre e Gaiola",
+      "categoria": "Pernas",
+      "criado_em": "2026-05-21T12:00:00Z"
+    }
+  },
+  {
+    "model": "treinos.exerciciomusculo",
+    "pk": 1,
+    "fields": {
+      "exercicio": 1,
+      "musculo": 1,
+      "is_principal": true
+    }
+  },
+  {
+    "model": "treinos.exerciciomusculo",
+    "pk": 2,
+    "fields": {
+      "exercicio": 1,
+      "musculo": 2,
+      "is_principal": false
+    }
+  },
+  {
+    "model": "treinos.exerciciomusculo",
+    "pk": 3,
+    "fields": {
+      "exercicio": 2,
+      "musculo": 3,
+      "is_principal": true
+    }
+  },
+  {
+    "model": "treinos.treinotemplate",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "nome": "Treino A - Peito Foco Força",
+      "descricao": "Foco em progressão de carga nos compostos.",
+      "is_publico": true,
+      "criado_em": "2026-05-21T12:10:00Z"
+    }
+  },
+  {
+    "model": "treinos.treinotemplate",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "nome": "Leg Day - Inferiores Completo",
+      "descricao": "Treino focado em quadríceps e glúteos.",
+      "is_publico": false,
+      "criado_em": "2026-05-21T12:11:00Z"
+    }
+  },
+  {
+    "model": "treinos.treinoexerciciotemplate",
+    "pk": 1,
+    "fields": {
+      "treino_template": 1,
+      "exercicio": 1,
+      "ordem": 1,
+      "series_sugeridas": 4,
+      "descanso_segundos": 90
+    }
+  },
+  {
+    "model": "treinos.treinoexerciciotemplate",
+    "pk": 2,
+    "fields": {
+      "treino_template": 2,
+      "exercicio": 2,
+      "ordem": 1,
+      "series_sugeridas": 4,
+      "descanso_segundos": 120
+    }
+  },
+  {
+    "model": "treinos.sessaotreino",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "treino_template": 1,
+      "iniciado_em": "2026-05-21T13:00:00Z",
+      "finalizado_em": "2026-05-21T14:00:00Z",
+      "volume_total_kg": "2400.00",
+      "observacao": "Consegui subir carga no supino."
+    }
+  },
+  {
+    "model": "treinos.sessaotreino",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "treino_template": 2,
+      "iniciado_em": "2026-05-21T13:30:00Z",
+      "finalizado_em": "2026-05-21T14:45:00Z",
+      "volume_total_kg": "3200.00",
+      "observacao": "Treino rendeu bem, pernas moídas."
+    }
+  },
+  {
+    "model": "treinos.sessaoexercicio",
+    "pk": 1,
+    "fields": {
+      "sessao_treino": 1,
+      "exercicio": 1,
+      "ordem": 1,
+      "anotacao_performance": "Última série foi quase até a falha."
+    }
+  },
+  {
+    "model": "treinos.sessaoexercicio",
+    "pk": 2,
+    "fields": {
+      "sessao_treino": 2,
+      "exercicio": 2,
+      "ordem": 1,
+      "anotacao_performance": "Boa execução, cadência controlada."
+    }
+  },
+  {
+    "model": "treinos.serie",
+    "pk": 1,
+    "fields": {
+      "sessao_exercicio": 1,
+      "numero_serie": 1,
+      "peso_kg": "80.00",
+      "repeticoes": 10,
+      "tipo_serie": "NORMAL",
+      "rr": "2.00",
+      "volume_serie": "800.00",
+      "criado_em": "2026-05-21T13:15:00Z"
+    }
+  },
+  {
+    "model": "treinos.serie",
+    "pk": 2,
+    "fields": {
+      "sessao_exercicio": 2,
+      "numero_serie": 1,
+      "peso_kg": "100.00",
+      "repeticoes": 8,
+      "tipo_serie": "NORMAL",
+      "rr": "1.00",
+      "volume_serie": "800.00",
+      "criado_em": "2026-05-21T13:45:00Z"
+    }
+  },
+  {
+    "model": "treinos.recordepessoal",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "exercicio": 1,
+      "valor_1rm_estimado": "106.00",
+      "maior_peso_kg": "90.00",
+      "data_conquista": "2026-05-21"
+    }
+  },
+  {
+    "model": "treinos.recordepessoal",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "exercicio": 2,
+      "valor_1rm_estimado": "120.00",
+      "maior_peso_kg": "110.00",
+      "data_conquista": "2026-05-21"
+    }
+  },
+  {
+    "model": "social.post",
+    "pk": 1,
+    "fields": {
+      "usuario": 1,
+      "sessao_treino": 1,
+      "titulo": "Mais um pra conta! Supino pago 🚀",
+      "conteudo": "Segunda-feira braba com recorde de carga. Segue o plano!",
+      "volume_total_post": "2400.00",
+      "data_post": "2026-05-21T14:05:00Z"
+    }
+  },
+  {
+    "model": "social.post",
+    "pk": 2,
+    "fields": {
+      "usuario": 2,
+      "sessao_treino": 2,
+      "titulo": "Leg day concluído com sucesso",
+      "conteudo": "Treino pago logo cedo para começar bem o dia. Sem desculpas.",
+      "volume_total_post": "3200.00",
+      "data_post": "2026-05-21T14:50:00Z"
+    }
+  },
+  {
+    "model": "social.postimagem",
+    "pk": 1,
+    "fields": {
+      "post": 1,
+      "imagem_url": "https://cdn.exemplo.com/posts/joao_treino.jpg",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "social.postimagem",
+    "pk": 2,
+    "fields": {
+      "post": 2,
+      "imagem_url": "https://cdn.exemplo.com/posts/maria_shape.jpg",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "social.curtidapost",
+    "pk": 1,
+    "fields": {
+      "post": 1,
+      "usuario": 2
+    }
+  },
+  {
+    "model": "social.curtidapost",
+    "pk": 2,
+    "fields": {
+      "post": 2,
+      "usuario": 1
+    }
+  },
+  {
+    "model": "social.comentariopost",
+    "pk": 1,
+    "fields": {
+      "post": 1,
+      "usuario": 2,
+      "mensagem": "Carga monstra! Pra cima!",
+      "criado_em": "2026-05-21T14:10:00Z"
+    }
+  },
+  {
+    "model": "social.comentariopost",
+    "pk": 2,
+    "fields": {
+      "post": 2,
+      "usuario": 1,
+      "mensagem": "Inspiradora! Excelente treino 👏",
+      "criado_em": "2026-05-21T14:55:00Z"
+    }
+  }
+]
