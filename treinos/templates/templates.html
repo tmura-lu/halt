@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block titulo %}HaltManager - Templates de Treino{% endblock %}
+{% block conteudo %}
+<div class="container py-5">
+  <div
+    class="page-header d-flex flex-column flex-md-row align-items-start justify-content-between gap-3"
+  >
+    <div>
+      <span class="section-label">Templates</span>
+      <h1 class="h3 mb-1">Templates de Treino</h1>
+      <p class="text-muted mb-0">
+        Organize seus planos e reutilize treinos com agilidade.
+      </p>
+    </div>
+    <a href="/templates/novo/" class="btn btn-accent btn-sm">
+      <i class="fas fa-plus me-1" aria-hidden="true"></i>Criar Template
+    </a>
+  </div>
+
+  {% if templates %}
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for t in templates %}
+    <div class="col">
+      <article class="card stats-card h-100 p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
+          <div class="icon-box icon-box-soft">
+            <i class="fas fa-clipboard-list fa-sm" aria-hidden="true"></i>
+          </div>
+          <span class="badge badge-accent badge-status">Template</span>
+        </div>
+        <h3 class="card-title h5 mb-2">{{ t.nome }}</h3>
+        <p class="small text-muted mb-3">
+          <i class="fas fa-calendar me-1 opacity-75" aria-hidden="true"></i>Criado em {{ t.criado_em|date:'d/m/Y' }}
+        </p>
+        <p class="text-muted mb-0" style="font-size: 0.875rem; line-height: 1.5;">
+          {{ t.descricao|default:'Sem descrição disponível.' }}
+        </p>
+        <a href="/templates/{{ t.id }}/" class="stretched-link" aria-label="Ver detalhes de {{ t.nome }}"></a>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+    </div>
+    <h3 class="h5 mb-2">Nenhum template cadastrado</h3>
+    <p class="text-muted" style="font-size: 0.9rem">
+      Crie um template para começar a planejar suas sessões.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

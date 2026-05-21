@@ -1,0 +1,58 @@
+{% extends 'base.html' %} {% block titulo %}HaltManager - Minhas Sessões{% endblock %}
+{% block conteudo %}
+<div class="container py-5">
+  <div
+    class="page-header d-flex flex-column flex-md-row align-items-start justify-content-between gap-3"
+  >
+    <div>
+      <span class="section-label">Sessões</span>
+      <h1 class="h3 mb-1">Minhas Sessões</h1>
+      <p class="text-muted mb-0">
+        Acompanhe o histórico e status das suas sessões.
+      </p>
+    </div>
+    <a href="/dashboard/" class="btn btn-outline-secondary btn-sm"
+      >Voltar ao Dashboard</a
+    >
+  </div>
+
+  {% if sessoes %}
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for s in sessoes %}
+    <div class="col">
+      <article class="card stats-card h-100 p-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 gap-3">
+          <div class="icon-box icon-box-soft">
+            <i class="fas fa-play-circle fa-sm" aria-hidden="true"></i>
+          </div>
+          {% if s.finalizado_em %}
+          <span class="badge badge-success badge-status">Finalizada</span>
+          {% else %}
+          <span class="badge badge-warning badge-status">Em andamento</span>
+          {% endif %}
+        </div>
+        <h3 class="card-title h5 mb-2">Sessão em {{ s.iniciado_em|date:'d/m/Y H:i' }}</h3>
+        <p class="small text-muted mb-3">
+          <i class="fas fa-clock me-1 opacity-75" aria-hidden="true"></i>Iniciada em {{ s.iniciado_em|date:'d/m/Y H:i' }}
+        </p>
+        <p class="text-muted mb-0" style="font-size: 0.875rem; line-height: 1.5;">
+          {{ s.observacao|default:'Sem observação.' }}
+        </p>
+        <a href="/sessoes/{{ s.id }}/" class="stretched-link" aria-label="Ver detalhes da sessão"></a>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="fas fa-history" aria-hidden="true"></i>
+    </div>
+    <h3 class="h5 mb-2">Nenhuma sessão registrada</h3>
+    <p class="text-muted" style="font-size: 0.9rem">
+      Inicie uma sessão a partir do dashboard e mantenha seu treino alinhado.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

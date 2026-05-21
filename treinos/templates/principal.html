@@ -1,0 +1,131 @@
+{% extends 'base.html' %} {% block titulo %}HaltManager{% endblock %}
+{% block conteudo %}
+<div class="container py-5">
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <section class="hero-section mb-5" aria-label="Apresentação">
+    <div class="row align-items-center gy-5">
+      <div class="col-lg-6">
+        <span class="hero-eyebrow">
+          <i class="fas fa-dumbbell fa-xs" aria-hidden="true"></i>
+          Organize seu treino
+        </span>
+        <h1 class="hero-title mb-4">
+          Treinos mais<br />claros e inteligentes.
+        </h1>
+        <p class="lead mb-5" style="max-width: 38rem; color: var(--text-soft)">
+          HaltManager é a base do seu treino: crie templates, registre sessões e
+          gerencie seus exercícios com fluidez.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a class="btn btn-accent btn-lg px-4" href="/exercicios/">
+            <i class="fas fa-dumbbell me-2" aria-hidden="true"></i>Ver
+            Exercícios
+          </a>
+          <a class="btn btn-outline-secondary btn-lg px-4" href="/templates/">
+            <i class="fas fa-clipboard-list me-2" aria-hidden="true"></i>Ver
+            Templates
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats mini-card -->
+      <div class="col-lg-5 offset-lg-1">
+        <div class="card stats-card p-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="icon-box icon-box-rose">
+              <i class="fas fa-play fa-sm" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div class="detail-label mb-0">Sessões ativas</div>
+              <div
+                class="h2 mb-0"
+                style="
+                  font-family: &quot;Syne&quot;, sans-serif;
+                  color: var(--text);
+                "
+              >
+                {{ data.2|default:'0' }}
+              </div>
+            </div>
+          </div>
+          <p class="mb-0" style="font-size: 0.875rem; color: var(--muted)">
+            Acompanhe suas sessões atuais e revise o progresso sempre que
+            quiser.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Feature cards ──────────────────────────────────────── -->
+  <section aria-labelledby="features-title">
+    <div
+      class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-3 mb-4"
+    >
+      <div>
+        <span class="section-label">O que você pode fazer</span>
+        <h2 class="section-title h4 mb-0" id="features-title">Acesso rápido</h2>
+      </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <!-- Exercícios -->
+      <div class="col">
+        <article class="card feature-card h-100 p-4">
+          <div class="icon-box icon-box-rose mb-3">
+            <i class="fas fa-list-check" aria-hidden="true"></i>
+          </div>
+          <h3 class="h6 card-title mb-2">Exercícios</h3>
+          <p class="text-muted mb-4" style="font-size: 0.875rem">
+            Gerencie todos os exercícios do seu treino em um só lugar.
+          </p>
+          <a
+            href="/exercicios/"
+            class="stretched-link btn btn-sm btn-outline-primary mt-auto align-self-start"
+          >
+            Explorar
+          </a>
+        </article>
+      </div>
+
+      <!-- Templates -->
+      <div class="col">
+        <article class="card feature-card h-100 p-4">
+          <div class="icon-box icon-box-rose mb-3">
+            <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+          </div>
+          <h3 class="h6 card-title mb-2">Templates</h3>
+          <p class="text-muted mb-4" style="font-size: 0.875rem">
+            Crie e reutilize planos de treino organizados e eficientes.
+          </p>
+          <a
+            href="/templates/"
+            class="stretched-link btn btn-sm btn-outline-primary mt-auto align-self-start"
+          >
+            Explorar
+          </a>
+        </article>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="col">
+        <article class="card feature-card h-100 p-4">
+          <div class="icon-box icon-box-rose mb-3">
+            <i class="fas fa-chart-line" aria-hidden="true"></i>
+          </div>
+          <h3 class="h6 card-title mb-2">Dashboard</h3>
+          <p class="text-muted mb-4" style="font-size: 0.875rem">
+            Visualize rapidamente seu progresso e métricas de treino.
+          </p>
+          <a
+            href="/dashboard/"
+            class="stretched-link btn btn-sm btn-outline-primary mt-auto align-self-start"
+          >
+            Explorar
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
