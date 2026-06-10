@@ -1,5 +1,18 @@
 services:
 
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=haltmanager_db
+      - POSTGRES_USER=halt_user
+      - POSTGRES_PASSWORD=halt_pass
+    ports:
+      - "5432:5432"
+
+
   halt-web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -9,15 +22,24 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - DB_NAME=haltmanager_db
+      - DB_USER=halt_user
+      - DB_PASSWORD=halt_pass
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
     restart: unless-stopped
 
-  sqlite-viewer:
-    image: coleifer/sqlite-web
+  db-viewer:
+    image: adminer
+    restart: unless-stopped
     ports:
       - "8081:8080"
-    volumes:
-      - .:/data
-    command: sqlite_web -H 0.0.0.0 -p 8080 /data/db.sqlite3
     depends_on:
-      - halt-web
-    restart: unless-stopped
+      - db
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+
+volumes:
+  postgres_data:
