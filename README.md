@@ -49,6 +49,7 @@ senha:   senha123
 ### Resetar o banco de dados
 
 ```bash
-rm .initialized db.sqlite3
+docker compose down -v
+rm .initialized 
 docker compose up
 ```
