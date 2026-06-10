@@ -3,14 +3,15 @@ import { getMyProfile } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { avatarUrl, formatVolume } from '../utils/helpers.js';
 import StreakCard from '../components/StreakCard.jsx';
+import StatsGrid from '../components/StatsGrid.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
-import { Edit2, Settings, Trophy, Dumbbell, TrendingUp, Users } from 'lucide-react';
+import { Edit2, Settings, Trophy, TrendingUp } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
-  const [profile, setProfile]  = useState(null);
-  const [loading, setLoading]  = useState(true);
-  const [activeTab, setActiveTab] = useState('pr');
+  const [profile, setProfile]          = useState(null);
+  const [loading, setLoading]          = useState(true);
+  const [activeTab, setActiveTab]      = useState('pr');
 
   useEffect(() => {
     if (!user) return;
@@ -22,10 +23,11 @@ export default function ProfilePage() {
 
   if (authLoading || loading) {
     return (
-      <div className="p-4 space-y-4">
-        <div className="skeleton h-8 w-24 rounded-lg" />
-        <div className="skeleton h-28 rounded-2xl" />
-        <div className="skeleton h-20 rounded-2xl" />
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="skeleton" style={{ height: 28, width: 96, borderRadius: 'var(--radius-md)' }} />
+        <div className="skeleton" style={{ height: 120, borderRadius: 'var(--radius-xl)' }} />
+        <div className="skeleton" style={{ height: 72, borderRadius: 'var(--radius-xl)' }} />
+        <div className="skeleton" style={{ height: 140, borderRadius: 'var(--radius-xl)' }} />
       </div>
     );
   }
@@ -46,239 +48,322 @@ export default function ProfilePage() {
     following,
     total_volume_kg,
     personal_records = [],
-    achievements = [],
+    achievements      = [],
   } = profile;
 
-  const stats = [
-    { label: 'Followers', value: followers ?? '--', icon: Users },
-    { label: 'Following', value: following ?? '--', icon: Users },
-    { label: 'Workouts',  value: workouts ?? '--', icon: Dumbbell },
-  ];
-
   return (
-    <div className="p-4 space-y-4 pb-8">
-      {/* Header */}
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-text-primary">Profile</h1>
-        <div className="flex items-center gap-2">
+    <div style={{ paddingBottom: 24 }}>
+
+      {/* ── Header ─────────────────────────────────────────── */}
+      <header style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '18px 16px 12px',
+      }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+          Perfil
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <ThemeToggle />
-          <button className="w-8 h-8 rounded-full flex items-center justify-center btn-press" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <Edit2 size={15} className="text-text-secondary" />
+          <button
+            className="btn-press"
+            style={{
+              width: 34, height: 34, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid var(--color-border-subtle)',
+            }}
+          >
+            <Edit2 size={14} style={{ color: 'var(--color-text-secondary)' }} />
           </button>
-          <button className="w-8 h-8 rounded-full flex items-center justify-center btn-press" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <Settings size={15} className="text-text-secondary" />
+          <button
+            className="btn-press"
+            style={{
+              width: 34, height: 34, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid var(--color-border-subtle)',
+            }}
+          >
+            <Settings size={14} style={{ color: 'var(--color-text-secondary)' }} />
           </button>
         </div>
       </header>
 
-      {/* Profile Card */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
-      >
-        <div className="flex items-start gap-4">
-          {/* Avatar with streak badge */}
-          <div className="relative flex-shrink-0">
-            <div className="story-ring p-0.5 rounded-full">
-              <img
-                src={avatarUrl({ imagem_perfil_url, username })}
-                alt={username}
-                className="w-16 h-16 rounded-full object-cover"
-              />
+      {/* ── Profile card ───────────────────────────────────── */}
+      <div style={{ padding: '0 16px', marginBottom: 14 }}>
+        <div style={{
+          background: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
+          borderRadius: 'var(--radius-2xl)',
+          overflow: 'hidden',
+        }}>
+          {/* Avatar + info */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '18px 16px 14px' }}>
+            {/* Avatar with streak badge */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div className="story-ring" style={{ padding: 2.5, borderRadius: '50%' }}>
+                <img
+                  src={avatarUrl({ imagem_perfil_url, username })}
+                  alt={username}
+                  style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
+                />
+              </div>
+              {streak_atual > 0 && (
+                <span style={{
+                  position: 'absolute', bottom: -2, right: -2,
+                  fontSize: 10, fontWeight: 800,
+                  padding: '2px 5px',
+                  borderRadius: 'var(--radius-pill)',
+                  background: '#F97316',
+                  color: '#fff',
+                  border: '1.5px solid var(--color-bg-surface)',
+                  lineHeight: 1.3,
+                }}>
+                  {streak_atual}d
+                </span>
+              )}
             </div>
-            {streak_atual > 0 && (
-              <span
-                className="absolute -bottom-1 -right-1 text-xs font-bold px-1.5 py-0.5 rounded-full"
-                style={{ background: '#F97316', color: '#fff', fontSize: '10px' }}
-              >
-                {streak_atual}d
-              </span>
-            )}
+
+            {/* User info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2 style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
+                {nome || username}
+              </h2>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: bio ? 6 : 0 }}>
+                @{username}
+              </p>
+              {bio && (
+                <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', lineHeight: 1.45, marginBottom: 8 }}>
+                  {bio}
+                </p>
+              )}
+              {(peso_atual != null || altura_cm != null) && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                  {peso_atual != null && (
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: '2px 9px',
+                      borderRadius: 'var(--radius-pill)',
+                      background: 'rgba(124,58,237,0.12)',
+                      border: '1px solid rgba(124,58,237,0.25)',
+                      color: '#a78bfa',
+                    }}>
+                      {peso_atual}kg
+                    </span>
+                  )}
+                  {altura_cm != null && (
+                    <span style={{
+                      fontSize: 11, fontWeight: 600, padding: '2px 9px',
+                      borderRadius: 'var(--radius-pill)',
+                      background: 'rgba(124,58,237,0.12)',
+                      border: '1px solid rgba(124,58,237,0.25)',
+                      color: '#a78bfa',
+                    }}>
+                      {altura_cm}cm
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-text-primary text-lg leading-tight">{nome || username}</h2>
-            <p className="text-text-secondary text-sm">@{username}</p>
-            {bio && (
-              <p className="text-text-secondary text-sm mt-1.5 leading-relaxed">{bio}</p>
-            )}
-            {(peso_atual != null || altura_cm != null) && (
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {peso_atual != null && (
-                  <span
-                    className="text-xs px-2.5 py-0.5 rounded-full font-medium"
-                    style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.25)' }}
-                  >
-                    {peso_atual}kg
-                  </span>
-                )}
-                {altura_cm != null && (
-                  <span
-                    className="text-xs px-2.5 py-0.5 rounded-full font-medium"
-                    style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.25)' }}
-                  >
-                    {altura_cm}cm
-                  </span>
-                )}
+          {/* Stats row: Followers | Following | Workouts */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            borderTop: '1px solid var(--color-border-subtle)',
+          }}>
+            {[
+              { label: 'Seguidores', value: followers },
+              { label: 'Seguindo',   value: following },
+              { label: 'Treinos',    value: workouts  },
+            ].map(({ label, value }, i) => (
+              <div key={label} style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                padding: '12px 6px',
+                borderRight: i < 2 ? '1px solid var(--color-border-subtle)' : 'none',
+              }}>
+                <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-primary)', lineHeight: 1 }}>
+                  {value ?? '--'}
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4 }}>
+                  {label}
+                </span>
               </div>
-            )}
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Stats row */}
-        <div
-          className="grid grid-cols-3 mt-5 pt-4"
-          style={{ borderTop: '1px solid var(--color-border-subtle)' }}
-        >
-          {stats.map(({ label, value }) => (
-            <div key={label} className="flex flex-col items-center">
-              <span className="text-xl font-bold text-text-primary">{value}</span>
-              <span className="text-xs text-text-muted mt-0.5">{label}</span>
-            </div>
+      {/* ── Streak card ────────────────────────────────────── */}
+      {streak_atual > 0 && (
+        <div style={{ padding: '0 16px', marginBottom: 14 }}>
+          <StreakCard streak_atual={streak_atual} maior_streak={maior_streak} />
+        </div>
+      )}
+
+      {/* ── 2×2 Stats grid ─────────────────────────────────── */}
+      <div style={{ padding: '0 16px', marginBottom: 14 }}>
+        <StatsGrid
+          workouts={workouts}
+          best_streak={maior_streak}
+          followers={followers}
+          volume_total_kg={total_volume_kg}
+        />
+      </div>
+
+      {/* ── Tabs ───────────────────────────────────────────── */}
+      <div style={{ padding: '0 16px', marginBottom: 2 }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          background: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
+          borderRadius: 'var(--radius-xl)',
+          padding: 4,
+          gap: 4,
+        }}>
+          {[
+            { key: 'pr',           label: 'Records Pessoais' },
+            { key: 'achievements', label: '⚡ Conquistas'    },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className="btn-press"
+              style={{
+                padding: '9px 4px',
+                borderRadius: 'var(--radius-lg)',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                transition: 'all 0.18s ease',
+                background: activeTab === key
+                  ? 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)'
+                  : 'transparent',
+                color: activeTab === key ? '#fff' : 'var(--color-text-secondary)',
+                boxShadow: activeTab === key ? '0 0 12px rgba(124,58,237,0.30)' : 'none',
+              }}
+            >
+              {label}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Streak Card */}
-      {streak_atual > 0 && (
-        <StreakCard streak_atual={streak_atual} maior_streak={maior_streak} />
-      )}
-
-      {/* Volume + Workouts stats grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <div
-          className="rounded-2xl p-4 flex flex-col items-center gap-1"
-          style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
-        >
-          <Dumbbell size={20} className="text-accent mb-1" />
-          <span className="text-xl font-bold text-text-primary">{workouts ?? '--'}</span>
-          <span className="text-xs text-text-muted">Workouts</span>
-        </div>
-        <div
-          className="rounded-2xl p-4 flex flex-col items-center gap-1"
-          style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
-        >
-          <TrendingUp size={20} className="text-accent mb-1" />
-          <span className="text-xl font-bold text-text-primary">
-            {total_volume_kg != null ? formatVolume(total_volume_kg) : '--'}
-          </span>
-          <span className="text-xs text-text-muted">Volume Total</span>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div
-        className="grid grid-cols-2 rounded-xl p-1"
-        style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
-      >
-        {[
-          { key: 'pr',           label: 'Personal Records' },
-          { key: 'achievements', label: 'Achievements' },
-        ].map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className="py-2.5 rounded-lg text-sm font-medium transition-all btn-press"
-            style={{
-              background: activeTab === key ? 'var(--color-accent)' : 'transparent',
-              color: activeTab === key ? '#fff' : 'var(--color-text-secondary)',
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      {activeTab === 'pr' ? (
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ border: '1px solid var(--color-border-subtle)' }}
-        >
-          {personal_records.length === 0 ? (
-            <div className="flex flex-col items-center py-10 text-center">
-              <Trophy size={32} className="text-text-muted mb-2" />
-              <p className="text-text-secondary text-sm">Nenhum recorde pessoal ainda.</p>
-            </div>
-          ) : (
-            personal_records.map((pr, i) => (
-              <div
-                key={pr.id}
-                className="flex items-center justify-between px-4 py-3.5"
-                style={{
-                  background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)',
-                  borderBottom: i < personal_records.length - 1 ? '1px solid var(--color-border-subtle)' : 'none',
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(124,58,237,0.15)' }}
-                  >
-                    <TrendingUp size={14} className="text-accent" />
+      {/* ── Tab content ────────────────────────────────────── */}
+      <div style={{ padding: '8px 16px 0' }}>
+        {activeTab === 'pr' ? (
+          <div style={{
+            background: 'var(--color-bg-surface)',
+            border: '1px solid var(--color-border-subtle)',
+            borderRadius: 'var(--radius-xl)',
+            overflow: 'hidden',
+          }}>
+            {personal_records.length === 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 16px', textAlign: 'center' }}>
+                <Trophy size={30} style={{ color: 'var(--color-text-muted)', marginBottom: 10 }} />
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
+                  Nenhum recorde pessoal ainda.
+                </p>
+              </div>
+            ) : (
+              personal_records.map((pr, i) => (
+                <div
+                  key={pr.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '13px 16px',
+                    borderBottom: i < personal_records.length - 1 ? '1px solid var(--color-border-subtle)' : 'none',
+                  }}
+                >
+                  <div style={{
+                    width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                    background: 'rgba(124,58,237,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <TrendingUp size={14} style={{ color: 'var(--color-accent)' }} />
                   </div>
-                  <div>
-                    <p className="text-text-primary font-medium text-sm">{pr.exercicio_nome}</p>
-                    <p className="text-text-muted text-xs">
-                      {pr.data_conquista ? new Date(pr.data_conquista).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) : ''}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--color-text-primary)' }}>
+                      {pr.exercicio_nome}
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 1 }}>
+                      {pr.data_conquista
+                        ? new Date(pr.data_conquista).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
+                        : ''}
                     </p>
                   </div>
+                  <div style={{ textAlign: 'right' }}>
+                    {pr.maior_peso_kg != null && (
+                      <p style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--color-accent)' }}>
+                        {pr.maior_peso_kg}kg
+                      </p>
+                    )}
+                    {pr.valor_1rm_estimado != null && (
+                      <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 1 }}>
+                        1RM ~{pr.valor_1rm_estimado}kg
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  {pr.maior_peso_kg != null && (
-                    <p className="text-accent font-bold text-sm">{pr.maior_peso_kg}kg</p>
-                  )}
-                  {pr.valor_1rm_estimado != null && (
-                    <p className="text-text-muted text-xs">1RM ~{pr.valor_1rm_estimado}kg</p>
-                  )}
-                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          <div style={{
+            background: 'var(--color-bg-surface)',
+            border: '1px solid var(--color-border-subtle)',
+            borderRadius: 'var(--radius-xl)',
+            overflow: 'hidden',
+          }}>
+            {achievements.length === 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 16px', textAlign: 'center' }}>
+                <Trophy size={30} style={{ color: 'var(--color-text-muted)', marginBottom: 10 }} />
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
+                  Nenhuma conquista ainda.
+                </p>
               </div>
-            ))
-          )}
-        </div>
-      ) : (
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ border: '1px solid var(--color-border-subtle)' }}
-        >
-          {achievements.length === 0 ? (
-            <div className="flex flex-col items-center py-10 text-center">
-              <Trophy size={32} className="text-text-muted mb-2" />
-              <p className="text-text-secondary text-sm">Nenhuma conquista ainda.</p>
-            </div>
-          ) : (
-            achievements.map((a, i) => (
-              <div
-                key={a.id}
-                className="flex items-center gap-3 px-4 py-3.5"
-                style={{
-                  borderBottom: i < achievements.length - 1 ? '1px solid var(--color-border-subtle)' : 'none',
-                }}
-              >
+            ) : (
+              achievements.map((a, i) => (
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(234,179,8,0.15)', border: '1px solid rgba(234,179,8,0.25)' }}
+                  key={a.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '13px 16px',
+                    borderBottom: i < achievements.length - 1 ? '1px solid var(--color-border-subtle)' : 'none',
+                  }}
                 >
-                  <Trophy size={18} className="text-yellow-400" />
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 'var(--radius-lg)', flexShrink: 0,
+                    background: 'rgba(234,179,8,0.12)',
+                    border: '1px solid rgba(234,179,8,0.22)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Trophy size={18} style={{ color: '#fbbf24' }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--color-text-primary)' }}>
+                      {a.nome}
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 1 }}>
+                      {a.descricao}
+                    </p>
+                  </div>
+                  {a.xp_recompensa && (
+                    <span style={{
+                      fontSize: 11, fontWeight: 700, padding: '2px 8px',
+                      borderRadius: 'var(--radius-pill)',
+                      background: 'rgba(234,179,8,0.12)',
+                      color: '#fbbf24',
+                      flexShrink: 0,
+                    }}>
+                      +{a.xp_recompensa}xp
+                    </span>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-text-primary font-medium text-sm">{a.nome}</p>
-                  <p className="text-text-muted text-xs">{a.descricao}</p>
-                </div>
-                {a.xp_recompensa && (
-                  <span
-                    className="text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
-                    style={{ background: 'rgba(234,179,8,0.15)', color: '#FBBF24' }}
-                  >
-                    +{a.xp_recompensa}xp
-                  </span>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      )}
+              ))
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

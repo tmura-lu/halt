@@ -11,43 +11,44 @@ export default function BottomNav() {
       try {
         const { data } = await getNotifications();
         setUnread(data.unread_count || 0);
-      } catch (e) {
+      } catch {
         // silently fail — not critical
       }
     };
     fetchUnread();
   }, []);
 
-  const linkClass = (isActive) =>
-    isActive
-      ? 'flex-1 text-center border-t-2 border-accent text-white py-2'
-      : 'flex-1 text-center text-text-secondary py-2';
+  const navItems = [
+    { to: '/',        icon: Home,     label: 'Feed',    end: true },
+    { to: '/workout', icon: Dumbbell, label: 'Workout', end: false },
+    { to: '/alerts',  icon: Bell,     label: 'Alertas', end: false, badge: unread },
+    { to: '/profile', icon: User,     label: 'Perfil',  end: false },
+  ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-surface border-t border-border-subtle flex">
-      <NavLink to="/" className={({ isActive }) => linkClass(isActive)}>
-        <Home size={20} className="mx-auto" />
-        <span className="block text-xs">Feed</span>
-      </NavLink>
-      <NavLink to="/workout" className={({ isActive }) => linkClass(isActive)}>
-        <Dumbbell size={20} className="mx-auto" />
-        <span className="block text-xs">Workout</span>
-      </NavLink>
-      <NavLink to="/alerts" className={({ isActive }) => linkClass(isActive)}>
-        <div className="relative inline-block">
-          <Bell size={20} className="mx-auto" />
-          {unread > 0 && (
-            <span className="absolute -top-1 -right-2 bg-accent text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              {unread}
-            </span>
+    <nav className="bottom-nav" role="navigation" aria-label="Navegação principal">
+      {navItems.map(({ to, icon: Icon, label, end, badge }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          className={({ isActive }) =>
+            `bottom-nav__item tap-highlight${isActive ? ' bottom-nav__item--active' : ''}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              {badge > 0 && (
+                <span className="bottom-nav__badge">{badge > 9 ? '9+' : badge}</span>
+              )}
+              <span className="bottom-nav__icon-wrap">
+                <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} />
+              </span>
+              <span className="bottom-nav__label">{label}</span>
+            </>
           )}
-        </div>
-        <span className="block text-xs">Alerts</span>
-      </NavLink>
-      <NavLink to="/profile" className={({ isActive }) => linkClass(isActive)}>
-        <User size={20} className="mx-auto" />
-        <span className="block text-xs">Profile</span>
-      </NavLink>
+        </NavLink>
+      ))}
     </nav>
   );
 }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getWorkoutTemplates, getExercicios, createWorkoutTemplate } from '../services/api.js';
 import TemplateCard from '../components/TemplateCard.jsx';
-import { Plus, X, Loader2, Dumbbell, Users } from 'lucide-react';
+import { Plus, X, Loader2 } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export default function WorkoutPage() {
   const [templates, setTemplates] = useState({ my_templates: [], community_templates: [] });
@@ -52,91 +53,119 @@ export default function WorkoutPage() {
   };
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Header */}
-      <header>
-        <h1 className="text-2xl font-bold text-text-primary">Workout</h1>
-        <p className="text-text-secondary text-sm mt-0.5">Pronto para treinar?</p>
+    <div style={{ paddingTop: 0 }}>
+      {/* ── Header ─────────────────────────────────────── */}
+      <header style={{ padding: '20px 16px 12px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
+          Workout
+        </h1>
+        <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginTop: 2 }}>
+          Pronto para treinar?
+        </p>
       </header>
 
-      {/* Start empty workout CTA */}
-      <button
-        className="w-full flex items-center justify-between px-5 py-4 rounded-2xl btn-press transition-all"
-        style={{
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(109,40,217,0.15) 100%)',
-          border: '1px solid rgba(124,58,237,0.35)',
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(124,58,237,0.25)' }}
-          >
-            <Plus size={22} className="text-accent" />
-          </div>
-          <div className="text-left">
-            <p className="font-semibold text-text-primary text-sm">Iniciar Treino em Branco</p>
-            <p className="text-text-secondary text-xs">Adicione exercícios enquanto treina</p>
-          </div>
-        </div>
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(124,58,237,0.2)' }}
+      {/* ── Start Empty Workout CTA ─────────────────────── */}
+      <div style={{ padding: '0 16px 20px' }}>
+        <button
+          className="btn-press tap-highlight"
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 20px',
+            borderRadius: 'var(--radius-2xl)',
+            background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
+            boxShadow: '0 4px 24px rgba(124,58,237,0.40)',
+          }}
         >
-          <span className="text-accent text-lg font-light">›</span>
-        </div>
-      </button>
-
-      {/* My Templates */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Dumbbell size={18} className="text-accent" />
-            <h2 className="text-lg font-semibold text-text-primary">Meus Templates</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: 'var(--radius-lg)',
+              background: 'rgba(255,255,255,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Plus size={20} color="#fff" strokeWidth={2.5} />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff', lineHeight: 1.2 }}>
+                Iniciar Treino em Branco
+              </p>
+              <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.70)', marginTop: 2 }}>
+                Adicione exercícios enquanto treina
+              </p>
+            </div>
           </div>
+          <ChevronRight size={20} color="rgba(255,255,255,0.80)" strokeWidth={2} />
+        </button>
+      </div>
+
+      {/* ── My Templates ───────────────────────────────── */}
+      <section>
+        {/* Section header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 16px 10px',
+        }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+            Meus Templates
+          </h2>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg btn-press transition-all"
+            className="btn-press tap-highlight"
             style={{
-              background: 'rgba(124,58,237,0.15)',
+              fontSize: '0.82rem', fontWeight: 600,
               color: '#a78bfa',
-              border: '1px solid rgba(124,58,237,0.25)',
+              background: 'transparent',
+              display: 'flex', alignItems: 'center', gap: 3,
             }}
           >
-            <Plus size={14} /> Novo
+            <Plus size={14} strokeWidth={2.5} /> Novo
           </button>
         </div>
 
-        {templates.my_templates.length === 0 ? (
-          <div
-            className="rounded-2xl p-8 text-center"
-            style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
-          >
-            <Dumbbell size={32} className="text-text-muted mx-auto mb-2" />
-            <p className="text-text-secondary text-sm">Nenhum template ainda.</p>
-            <p className="text-text-muted text-xs mt-1">Crie seu primeiro template de treino!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {templates.my_templates.map((t) => (
+        {/* Template list container */}
+        <div style={{
+          background: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
+          borderLeft: 'none', borderRight: 'none',
+        }}>
+          {templates.my_templates.length === 0 ? (
+            <div style={{ padding: '40px 16px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
+                Nenhum template ainda.
+              </p>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.78rem', marginTop: 4 }}>
+                Crie seu primeiro template de treino!
+              </p>
+            </div>
+          ) : (
+            templates.my_templates.map((t, idx) => (
               <TemplateCard
                 key={t.id}
                 {...t}
+                isLast={idx === templates.my_templates.length - 1}
                 onStart={() => console.log('Start workout with template', t.id)}
               />
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </section>
 
-      {/* Community Templates */}
+      {/* ── Community Templates ─────────────────────────── */}
       {templates.community_templates.length > 0 && (
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Users size={18} className="text-accent" />
-            <h2 className="text-lg font-semibold text-text-primary">Comunidade</h2>
+        <section style={{ marginTop: 24 }}>
+          <div style={{ padding: '0 16px 10px' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+              Comunidade
+            </h2>
           </div>
-          <div className="space-y-3">
+          <div style={{
+            background: 'var(--color-bg-surface)',
+            border: '1px solid var(--color-border-subtle)',
+            borderLeft: 'none', borderRight: 'none',
+          }}>
             {templates.community_templates.map((t) => (
               <TemplateCard key={t.id} {...t} />
             ))}
@@ -144,114 +173,137 @@ export default function WorkoutPage() {
         </section>
       )}
 
-      {/* Modal */}
+      {/* ── Modal: Novo Template ────────────────────────── */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+            padding: '0 0 0 0',
+          }}
           onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
           <div
-            className="w-full sm:max-w-md rounded-2xl p-5 space-y-4 animate-fade-in-up"
+            className="animate-slide-up"
             style={{
+              width: '100%',
+              maxWidth: 480,
+              borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
               background: 'var(--color-bg-surface)',
               border: '1px solid var(--color-border-subtle)',
+              borderBottom: 'none',
+              padding: '20px 16px 32px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 14,
             }}
           >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-text-primary">Novo Template</h3>
+            {/* Modal header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                Novo Template
+              </h3>
               <button
                 onClick={closeModal}
-                className="w-8 h-8 rounded-full flex items-center justify-center btn-press"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
+                className="btn-press"
+                style={{
+                  width: 30, height: 30, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.07)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
               >
-                <X size={16} className="text-text-secondary" />
+                <X size={15} style={{ color: 'var(--color-text-secondary)' }} />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nome do treino *"
-                value={newTemplate.nome}
-                onChange={(e) => setNewTemplate((p) => ({ ...p, nome: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl text-text-primary placeholder:text-text-muted text-sm outline-none"
-                style={{
-                  background: 'var(--color-bg-elevated)',
-                  border: '1px solid var(--color-border-subtle)',
-                }}
-              />
-              <textarea
-                placeholder="Descrição (opcional)"
-                rows={2}
-                value={newTemplate.descricao}
-                onChange={(e) => setNewTemplate((p) => ({ ...p, descricao: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl text-text-primary placeholder:text-text-muted text-sm outline-none resize-none"
-                style={{
-                  background: 'var(--color-bg-elevated)',
-                  border: '1px solid var(--color-border-subtle)',
-                }}
-              />
+            {/* Fields */}
+            <input
+              type="text"
+              placeholder="Nome do treino *"
+              value={newTemplate.nome}
+              onChange={(e) => setNewTemplate((p) => ({ ...p, nome: e.target.value }))}
+              className="input-base"
+            />
+            <textarea
+              placeholder="Descrição (opcional)"
+              rows={2}
+              value={newTemplate.descricao}
+              onChange={(e) => setNewTemplate((p) => ({ ...p, descricao: e.target.value }))}
+              className="input-base"
+              style={{ resize: 'none' }}
+            />
 
-              {exercises.length > 0 && (
-                <div>
-                  <p className="text-xs text-text-muted uppercase tracking-wider mb-2">Exercícios</p>
-                  <div
-                    className="max-h-44 overflow-y-auto rounded-xl divide-y"
-                    style={{
-                      background: 'var(--color-bg-elevated)',
-                      border: '1px solid var(--color-border-subtle)',
-                      '--tw-divide-opacity': 1,
-                      borderColor: 'var(--color-border-subtle)',
-                    }}
-                  >
-                    {exercises.map((ex) => {
-                      const selected = newTemplate.exercicios.some((e) => e.exercicio_id === ex.id);
-                      return (
-                        <label
-                          key={ex.id}
-                          className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors"
-                          style={{ background: selected ? 'rgba(124,58,237,0.1)' : 'transparent' }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selected}
-                            onChange={() => toggleExercise(ex.id)}
-                            className="accent-accent"
-                          />
-                          <span className="text-sm text-text-primary">{ex.nome}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
+            {exercises.length > 0 && (
+              <div>
+                <p className="section-label" style={{ padding: '0 0 6px' }}>Exercícios</p>
+                <div style={{
+                  maxHeight: 176, overflowY: 'auto',
+                  background: 'var(--color-bg-elevated)',
+                  border: '1px solid var(--color-border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                }}>
+                  {exercises.map((ex) => {
+                    const selected = newTemplate.exercicios.some((e) => e.exercicio_id === ex.id);
+                    return (
+                      <label
+                        key={ex.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '10px 14px',
+                          borderBottom: '1px solid var(--color-border-subtle)',
+                          cursor: 'pointer',
+                          background: selected ? 'rgba(124,58,237,0.10)' : 'transparent',
+                          transition: 'background 0.15s',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={() => toggleExercise(ex.id)}
+                          style={{ accentColor: '#7C3AED', width: 15, height: 15 }}
+                        />
+                        <span style={{ fontSize: '0.85rem', color: 'var(--color-text-primary)' }}>
+                          {ex.nome}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
+            )}
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={newTemplate.is_publico}
-                  onChange={(e) => setNewTemplate((p) => ({ ...p, is_publico: e.target.checked }))}
-                  className="accent-accent"
-                />
-                <span className="text-sm text-text-secondary">Tornar público para a comunidade</span>
-              </label>
-            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={newTemplate.is_publico}
+                onChange={(e) => setNewTemplate((p) => ({ ...p, is_publico: e.target.checked }))}
+                style={{ accentColor: '#7C3AED', width: 15, height: 15 }}
+              />
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                Tornar público para a comunidade
+              </span>
+            </label>
 
             <button
               onClick={handleCreate}
               disabled={!newTemplate.nome.trim() || creating}
-              className="w-full py-3 rounded-xl font-semibold text-white text-sm btn-press transition-all"
+              className="btn-press"
               style={{
+                width: '100%', padding: '13px',
+                borderRadius: 'var(--radius-xl)',
+                fontWeight: 700, fontSize: '0.9rem', color: '#fff',
                 background: newTemplate.nome.trim()
                   ? 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)'
-                  : 'rgba(124,58,237,0.3)',
+                  : 'rgba(124,58,237,0.30)',
                 boxShadow: newTemplate.nome.trim() ? '0 0 20px rgba(124,58,237,0.35)' : 'none',
+                cursor: !newTemplate.nome.trim() || creating ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
               }}
             >
               {creating ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 size={16} className="animate-spin" /> Criando…
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <Loader2 size={15} style={{ animation: 'spin 0.8s linear infinite' }} /> Criando…
                 </span>
               ) : (
                 'Criar Template'

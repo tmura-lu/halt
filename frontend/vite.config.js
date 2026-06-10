@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'fs'
+
+const isDocker = fs.existsSync('/.dockerenv')
+const backendTarget = isDocker ? 'http://halt-web:8000' : 'http://localhost:8000'
 
 export default defineConfig({
   plugins: [
@@ -16,15 +20,15 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://halt-web:8000',
+        target: backendTarget,
         changeOrigin: true,
       },
       '/admin': {
-        target: 'http://halt-web:8000',
+        target: backendTarget,
         changeOrigin: true,
       },
       '/static': {
-        target: 'http://halt-web:8000',
+        target: backendTarget,
         changeOrigin: true,
       },
     },

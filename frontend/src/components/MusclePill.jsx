@@ -1,6 +1,17 @@
 export default function MusclePill({ label }) {
   return (
-    <span className="border border-accent/40 bg-accent-muted text-accent text-xs rounded-full px-2 py-0.5 whitespace-nowrap">
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '2px 9px',
+      borderRadius: 'var(--radius-pill)',
+      fontSize: 11,
+      fontWeight: 500,
+      whiteSpace: 'nowrap',
+      background: 'rgba(124,58,237,0.12)',
+      border: '1px solid rgba(124,58,237,0.30)',
+      color: '#a78bfa',
+    }}>
       {label}
     </span>
   );

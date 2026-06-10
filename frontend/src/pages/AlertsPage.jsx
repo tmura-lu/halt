@@ -6,68 +6,80 @@ import { Bell, CheckCheck, Heart, MessageCircle, UserPlus, Trophy, Flame } from 
 
 function notifIcon(tipo) {
   const t = (tipo || '').toLowerCase();
-  if (t.includes('curtida') || t.includes('like')) return <Heart size={14} className="text-rose-400" />;
-  if (t.includes('coment')) return <MessageCircle size={14} className="text-blue-400" />;
-  if (t.includes('follow') || t.includes('segui')) return <UserPlus size={14} className="text-emerald-400" />;
-  if (t.includes('recorde') || t.includes('pr')) return <Trophy size={14} className="text-yellow-400" />;
-  if (t.includes('streak')) return <Flame size={14} className="text-orange-400" />;
-  return <Bell size={14} className="text-accent" />;
+  if (t.includes('curtida') || t.includes('like'))   return <Heart       size={12} color="#f87171" />;
+  if (t.includes('coment'))                           return <MessageCircle size={12} color="#60a5fa" />;
+  if (t.includes('follow') || t.includes('segui'))   return <UserPlus     size={12} color="#34d399" />;
+  if (t.includes('recorde') || t.includes('pr'))     return <Trophy       size={12} color="#fbbf24" />;
+  if (t.includes('streak'))                          return <Flame        size={12} color="#fb923c" />;
+  return <Bell size={12} color="#a78bfa" />;
 }
 
 function NotifRow({ n }) {
-  const autor = n.usuario_origem || {};
+  const autor  = n.usuario_origem || {};
   const isRead = n.is_lida;
+
   return (
-    <div
-      className="flex items-center gap-3 px-4 py-3.5 transition-colors"
-      style={{
-        borderBottom: '1px solid var(--color-border-subtle)',
-        background: isRead ? 'transparent' : 'rgba(124,58,237,0.06)',
-      }}
-    >
-      {/* Avatar with icon overlay */}
-      <div className="relative flex-shrink-0">
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      padding: '13px 16px',
+      borderBottom: '1px solid var(--color-border-subtle)',
+      background: isRead ? 'transparent' : 'rgba(124,58,237,0.05)',
+      transition: 'background 0.2s',
+    }}>
+      {/* Avatar + icon badge */}
+      <div style={{ position: 'relative', flexShrink: 0 }}>
         <img
           src={avatarUrl(autor)}
           alt={autor.username || ''}
-          className="w-10 h-10 rounded-full object-cover"
-          style={{ border: '1.5px solid rgba(124,58,237,0.3)' }}
+          style={{
+            width: 42, height: 42, borderRadius: '50%', objectFit: 'cover',
+            border: '1.5px solid rgba(124,58,237,0.30)',
+          }}
         />
-        <span
-          className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center"
-          style={{ background: 'var(--color-bg-elevated)', border: '1.5px solid var(--color-bg-surface)' }}
-        >
+        <span style={{
+          position: 'absolute', bottom: -2, right: -2,
+          width: 20, height: 20, borderRadius: '50%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'var(--color-bg-elevated)',
+          border: '1.5px solid var(--color-bg-base)',
+        }}>
           {notifIcon(n.tipo)}
         </span>
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-text-primary leading-snug">
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: '0.84rem', color: 'var(--color-text-primary)', lineHeight: 1.4 }}>
           {autor.username && (
-            <span className="font-semibold">@{autor.username} </span>
+            <span style={{ fontWeight: 700 }}>@{autor.username} </span>
           )}
-          <span className="text-text-secondary">{n.mensagem}</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>{n.mensagem}</span>
         </p>
-        <p className="text-xs text-text-muted mt-0.5">{formatDistanceToNow(n.criado_em)}</p>
+        <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>
+          {formatDistanceToNow(n.criado_em)}
+        </p>
       </div>
 
       {/* Unread dot */}
       {!isRead && (
-        <span
-          className="w-2 h-2 rounded-full flex-shrink-0"
-          style={{ background: 'var(--color-accent)' }}
-        />
+        <span style={{
+          width: 9, height: 9, borderRadius: '50%',
+          background: 'var(--color-accent)',
+          flexShrink: 0,
+          boxShadow: '0 0 6px rgba(124,58,237,0.60)',
+        }} />
       )}
     </div>
   );
 }
 
 export default function AlertsPage() {
-  const [today, setToday]         = useState([]);
-  const [earlier, setEarlier]     = useState([]);
-  const [unreadCount, setUnread]  = useState(0);
-  const [loading, setLoading]     = useState(true);
+  const [today, setToday]        = useState([]);
+  const [earlier, setEarlier]    = useState([]);
+  const [unreadCount, setUnread] = useState(0);
+  const [loading, setLoading]    = useState(true);
 
   useEffect(() => {
     getNotifications()
@@ -93,69 +105,91 @@ export default function AlertsPage() {
   };
 
   return (
-    <div className="p-4">
-      {/* Header */}
-      <header className="flex items-center justify-between mb-5">
+    <div>
+      {/* ── Header ── */}
+      <header style={{
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        padding: '20px 16px 14px',
+      }}>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Notificações</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
+            Notificações
+          </h1>
           {unreadCount > 0 && (
-            <p className="text-sm text-text-secondary mt-0.5">{unreadCount} não lidas</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginTop: 3 }}>
+              {unreadCount} não {unreadCount === 1 ? 'lida' : 'lidas'}
+            </p>
           )}
         </div>
+
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="flex items-center gap-1.5 text-sm font-medium btn-press transition-colors px-3 py-1.5 rounded-lg"
+            className="btn-press tap-highlight"
             style={{
-              background: 'rgba(124,58,237,0.15)',
+              display: 'flex', alignItems: 'center', gap: 5,
+              fontSize: '0.78rem', fontWeight: 600,
+              padding: '6px 12px',
+              borderRadius: 'var(--radius-pill)',
+              background: 'rgba(124,58,237,0.12)',
+              border: '1px solid rgba(124,58,237,0.28)',
               color: '#a78bfa',
-              border: '1px solid rgba(124,58,237,0.25)',
+              marginTop: 4,
             }}
           >
-            <CheckCheck size={15} />
+            <CheckCheck size={13} strokeWidth={2.2} />
             Marcar lidas
           </button>
         )}
       </header>
 
+      {/* ── List ── */}
       {loading ? (
-        <div className="space-y-3">
+        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="skeleton h-16 rounded-xl" />
+            <div key={i} className="skeleton" style={{ height: 64, borderRadius: 'var(--radius-xl)' }} />
           ))}
         </div>
       ) : (
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ border: '1px solid var(--color-border-subtle)' }}
-        >
+        <div style={{ background: 'var(--color-bg-surface)', borderTop: '1px solid var(--color-border-subtle)' }}>
+          {/* Today */}
           {today.length > 0 && (
             <>
-              <div
-                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted"
-                style={{ background: 'var(--color-bg-elevated)' }}
-              >
-                Hoje
-              </div>
+              <p className="section-label">Hoje</p>
               {today.map((n) => <NotifRow key={n.id} n={n} />)}
             </>
           )}
+
+          {/* Earlier */}
           {earlier.length > 0 && (
             <>
-              <div
-                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted"
-                style={{ background: 'var(--color-bg-elevated)' }}
-              >
+              <p className="section-label" style={{ paddingTop: today.length > 0 ? 10 : 8 }}>
                 Anteriores
-              </div>
+              </p>
               {earlier.map((n) => <NotifRow key={n.id} n={n} />)}
             </>
           )}
+
+          {/* Empty state */}
           {today.length === 0 && earlier.length === 0 && (
-            <div className="flex flex-col items-center py-16 text-center">
-              <Bell size={40} className="text-text-muted mb-3" />
-              <p className="text-text-secondary font-medium">Nenhuma notificação</p>
-              <p className="text-text-muted text-sm mt-1">Você está em dia!</p>
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              padding: '60px 24px', textAlign: 'center',
+            }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 'var(--radius-xl)',
+                background: 'rgba(124,58,237,0.10)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: 14,
+              }}>
+                <Bell size={26} style={{ color: 'var(--color-accent)' }} />
+              </div>
+              <p style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '0.9rem' }}>
+                Nenhuma notificação
+              </p>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem', marginTop: 4 }}>
+                Você está em dia!
+              </p>
             </div>
           )}
         </div>

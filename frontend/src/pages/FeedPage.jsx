@@ -13,7 +13,6 @@ export default function FeedPage() {
   const [nextCursor, setNextCursor] = useState(null);
   const [loading, setLoading]       = useState(false);
   const [hasMore, setHasMore]       = useState(true);
-  const initialLoad = useState(false);
 
   const fetchPosts = async (cursor = null) => {
     if (loading) return;
@@ -36,65 +35,94 @@ export default function FeedPage() {
   }, []);
 
   return (
-    <div className="p-4 pb-6">
-      {/* Compact header */}
-      <header className="flex items-center justify-between mb-4">
+    <div>
+      {/* ── Header ── */}
+      <header style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '16px 16px 12px',
+        borderBottom: '1px solid var(--color-border-subtle)',
+      }}>
         <div>
-          <h1
-            className="text-2xl font-bold text-text-primary leading-none"
-            style={{ fontFamily: 'Syne, sans-serif', letterSpacing: '-0.02em' }}
-          >
+          <h1 style={{
+            fontSize: '1.35rem',
+            fontWeight: 800,
+            color: 'var(--color-text-primary)',
+            letterSpacing: '-0.02em',
+            fontFamily: 'var(--font-display)',
+            lineHeight: 1,
+          }}>
             halt.
           </h1>
-          <p className="text-xs text-text-muted mt-0.5">Your fitness community</p>
+          <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>
+            Your fitness community
+          </p>
         </div>
-        <div className="flex items-center gap-2.5">
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ThemeToggle />
           {user && (
             <img
               src={avatarUrl(user)}
               alt={user.username}
-              className="w-9 h-9 rounded-full object-cover"
-              style={{ border: '2px solid rgba(124,58,237,0.6)' }}
+              style={{
+                width: 34, height: 34, borderRadius: '50%', objectFit: 'cover',
+                border: '2px solid rgba(124,58,237,0.55)',
+              }}
             />
           )}
         </div>
       </header>
 
-      {/* Stories */}
-      <StoriesRow />
+      {/* ── Stories ── */}
+      <div style={{ padding: '12px 16px 10px' }}>
+        <StoriesRow />
+      </div>
 
-      {/* Posts */}
-      <div className="mt-4 space-y-3">
+      {/* ── Feed posts — full-bleed list ── */}
+      <div style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
 
         {loading && (
-          <div className="flex justify-center py-6">
-            <Loader2 className="animate-spin w-6 h-6 text-accent" />
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0' }}>
+            <Loader2 size={22} style={{ color: 'var(--color-accent)', animation: 'spin 0.8s linear infinite' }} />
           </div>
         )}
 
         {!loading && hasMore && posts.length > 0 && (
           <button
             onClick={() => fetchPosts(nextCursor)}
-            className="w-full py-3 text-sm text-accent font-medium btn-press"
+            className="btn-press tap-highlight"
+            style={{
+              width: '100%', padding: '14px',
+              fontSize: '0.85rem', fontWeight: 600,
+              color: 'var(--color-accent)',
+              borderTop: '1px solid var(--color-border-subtle)',
+            }}
           >
             Carregar mais
           </button>
         )}
 
         {!loading && posts.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.25)' }}
-            >
-              <span className="text-3xl">🏋️</span>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '64px 24px', textAlign: 'center',
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 'var(--radius-xl)',
+              background: 'rgba(124,58,237,0.10)',
+              border: '1px solid rgba(124,58,237,0.20)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 16,
+            }}>
+              <span style={{ fontSize: 28 }}>🏋️</span>
             </div>
-            <p className="text-text-primary font-semibold mb-1">Nenhum post ainda</p>
-            <p className="text-text-secondary text-sm">
+            <p style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: '0.9rem', marginBottom: 4 }}>
+              Nenhum post ainda
+            </p>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.82rem' }}>
               Registre seu primeiro treino e compartilhe com a comunidade!
             </p>
           </div>

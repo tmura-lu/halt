@@ -1,15 +1,116 @@
 import React, { useState, forwardRef } from 'react';
-import { Heart, HeartOff, MessageCircle, Share2, Dumbbell, Clock, Weight } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Dumbbell, Clock, Weight } from 'lucide-react';
 import { formatDistanceToNow, formatDuration, formatVolume } from '../utils/helpers.js';
 import { likePost } from '../services/api.js';
 import CommentsPanel from './CommentsPanel.jsx';
 
+/* ── Stats banner ───────────────────────────────────────────── */
+function StatsBanner({ stats }) {
+  if (!stats) return null;
+  const dur = formatDuration(stats.duracao_min);
+  const vol = formatVolume(stats.volume_total_kg);
+  const exCount = stats.num_exercicios;
+  if (!exCount && dur === '--' && vol === '--') return null;
+
+  return (
+    <div className="stats-banner" style={{ margin: '10px 0' }}>
+      {exCount != null && (
+        <span className="stats-banner__item">
+          <Dumbbell size={13} style={{ color: 'var(--color-accent)' }} />
+          {exCount} exercícios
+        </span>
+      )}
+      {dur !== '--' && (
+        <span className="stats-banner__item">
+          <Clock size={13} style={{ color: 'var(--color-accent)' }} />
+          {dur}
+        </span>
+      )}
+      {vol !== '--' && (
+        <span className="stats-banner__item">
+          <Weight size={13} style={{ color: 'var(--color-accent)' }} />
+          {vol}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ── Image carousel ─────────────────────────────────────────── */
+function ImageCarousel({ images }) {
+  const [idx, setIdx] = useState(0);
+  if (!images || images.length === 0) return null;
+
+  if (images.length === 1) {
+    return (
+      <img
+        src={images[0]}
+        alt="post"
+        style={{
+          width: '100%',
+          maxHeight: 300,
+          objectFit: 'cover',
+          borderRadius: 'var(--radius-xl)',
+          marginBottom: 10,
+          display: 'block',
+        }}
+      />
+    );
+  }
+
+  const prev = () => setIdx((i) => (i - 1 + images.length) % images.length);
+  const next = () => setIdx((i) => (i + 1) % images.length);
+
+  return (
+    <div style={{ position: 'relative', marginBottom: 10 }}>
+      <img
+        src={images[idx]}
+        alt={`slide-${idx}`}
+        style={{
+          width: '100%',
+          maxHeight: 300,
+          objectFit: 'cover',
+          borderRadius: 'var(--radius-xl)',
+          display: 'block',
+        }}
+      />
+      <button
+        onClick={prev}
+        className="btn-press"
+        style={{
+          position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)',
+          background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)',
+          color: '#fff', border: 'none', borderRadius: '50%',
+          width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, lineHeight: 1,
+        }}
+      >‹</button>
+      <button
+        onClick={next}
+        className="btn-press"
+        style={{
+          position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+          background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)',
+          color: '#fff', border: 'none', borderRadius: '50%',
+          width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, lineHeight: 1,
+        }}
+      >›</button>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 8 }}>
+        {images.map((_, i) => (
+          <span key={i} className={`carousel-dot${i === idx ? ' active' : ''}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── PostCard ───────────────────────────────────────────────── */
 const PostCard = forwardRef(function PostCard({ post }, ref) {
-  const [liked, setLiked]               = useState(post.liked_by_me);
-  const [likeCount, setLikeCount]       = useState(post.total_curtidas);
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [showComments, setShowComments]  = useState(false);
-  const [commentCount, setCommentCount]  = useState(post.total_comentarios);
+  const [liked, setLiked]             = useState(post.liked_by_me);
+  const [likeCount, setLikeCount]     = useState(post.total_curtidas);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(post.total_comentarios);
 
   const handleLike = async () => {
     const newLiked = !liked;
@@ -23,185 +124,113 @@ const PostCard = forwardRef(function PostCard({ post }, ref) {
     }
   };
 
-  const renderStatsBanner = () => {
-    const stats = post.sessao_stats;
-    if (!stats) return null;
-
-    const dur = formatDuration(stats.duracao_min);
-    const vol = formatVolume(stats.volume_total_kg);
-    const exCount = stats.num_exercicios;
-
-    // Don't show if there's nothing useful
-    if (!exCount && dur === '--' && vol === '--') return null;
-
-    return (
-      <div
-        className="flex items-center gap-4 rounded-xl px-4 py-2.5 my-3 text-sm"
-        style={{
-          background: 'rgba(124,58,237,0.12)',
-          border: '1px solid rgba(124,58,237,0.25)',
-        }}
-      >
-        {exCount != null && (
-          <span className="flex items-center gap-1.5 text-text-secondary">
-            <Dumbbell size={14} className="text-accent" />
-            <span>{exCount} exercícios</span>
-          </span>
-        )}
-        {dur !== '--' && (
-          <span className="flex items-center gap-1.5 text-text-secondary">
-            <Clock size={14} className="text-accent" />
-            <span>{dur}</span>
-          </span>
-        )}
-        {vol !== '--' && (
-          <span className="flex items-center gap-1.5 text-text-secondary">
-            <Weight size={14} className="text-accent" />
-            <span>{vol}</span>
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  const renderImages = () => {
-    if (!post.imagens || post.imagens.length === 0) return null;
-    if (post.imagens.length === 1) {
-      return (
-        <img
-          src={post.imagens[0]}
-          alt="post"
-          className="w-full rounded-xl mb-3 object-cover max-h-80"
-        />
-      );
-    }
-    const next = () => setCarouselIndex((i) => (i + 1) % post.imagens.length);
-    const prev = () => setCarouselIndex((i) => (i - 1 + post.imagens.length) % post.imagens.length);
-    return (
-      <div className="relative mb-3">
-        <img
-          src={post.imagens[carouselIndex]}
-          alt={`slide-${carouselIndex}`}
-          className="w-full rounded-xl object-cover max-h-80"
-        />
-        <button
-          onClick={prev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white"
-          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
-        >
-          ‹
-        </button>
-        <button
-          onClick={next}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white"
-          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
-        >
-          ›
-        </button>
-        <div className="flex justify-center gap-1 mt-2">
-          {post.imagens.map((_, i) => (
-            <span key={i} className={`carousel-dot ${i === carouselIndex ? 'active' : ''}`} />
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   const autor = post.usuario || {};
 
   return (
     <>
-      <div
+      <article
         ref={ref}
-        className="rounded-2xl p-4 mb-3 animate-fade-in-up"
+        className="animate-fade-in-up"
         style={{
           background: 'var(--color-bg-surface)',
-          border: '1px solid var(--color-border-subtle)',
+          borderBottom: '1px solid var(--color-border-subtle)',
+          padding: '14px 16px',
         }}
       >
-        {/* Header */}
-        <div className="flex items-center mb-2">
-          <div className="story-ring p-0.5 mr-3 flex-shrink-0">
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          <div className="story-ring" style={{ padding: 2, borderRadius: '50%', flexShrink: 0 }}>
             <img
-              src={
-                autor.imagem_perfil_url ||
-                `https://api.dicebear.com/8.x/avataaars/svg?seed=${autor.username || 'user'}`
-              }
+              src={autor.imagem_perfil_url || `https://api.dicebear.com/8.x/avataaars/svg?seed=${autor.username || 'user'}`}
               alt={autor.username || ''}
-              className="w-9 h-9 rounded-full object-cover"
+              style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', display: 'block' }}
             />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-text-primary leading-tight truncate">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
               {autor.nome || autor.username}
             </p>
-            <p className="text-xs text-text-secondary">
+            <p style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
               @{autor.username} · {formatDistanceToNow(post.data_post)}
             </p>
           </div>
           {post.sessao_treino_id && (
-            <span
-              className="ml-2 text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0"
-              style={{ background: 'rgba(124,58,237,0.2)', color: '#a78bfa' }}
-            >
-              Workout
-            </span>
+            <span className="pill--workout">Workout</span>
           )}
         </div>
 
-        {/* Stats banner */}
-        {renderStatsBanner()}
+        {/* ── Stats banner ── */}
+        <StatsBanner stats={post.sessao_stats} />
 
-        {/* Images */}
-        {renderImages()}
+        {/* ── Images ── */}
+        <ImageCarousel images={post.imagens} />
 
-        {/* Title */}
+        {/* ── Title ── */}
         {post.titulo && (
-          <p className="font-semibold text-text-primary mb-1">{post.titulo}</p>
+          <p style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-text-primary)', marginBottom: 4 }}>
+            {post.titulo}
+          </p>
         )}
 
-        {/* Content */}
+        {/* ── Content ── */}
         {post.conteudo && (
-          <p className="text-text-secondary text-sm whitespace-pre-wrap mb-3 leading-relaxed">
+          <p style={{
+            fontSize: '0.85rem',
+            color: 'var(--color-text-secondary)',
+            lineHeight: 1.55,
+            whiteSpace: 'pre-wrap',
+            marginBottom: 12,
+          }}>
             {post.conteudo}
           </p>
         )}
 
-        {/* Footer */}
-        <div
-          className="flex items-center gap-5 pt-2.5"
-          style={{ borderTop: '1px solid var(--color-border-subtle)' }}
-        >
+        {/* ── Footer ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 20,
+          paddingTop: 10,
+          borderTop: '1px solid var(--color-border-subtle)',
+        }}>
           <button
             onClick={handleLike}
-            className="flex items-center gap-1.5 btn-press tap-highlight transition-colors"
-            style={{ color: liked ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}
+            className="btn-press tap-highlight"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              color: liked ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+              fontSize: '0.85rem', fontWeight: 500,
+            }}
           >
-            {liked ? (
-              <Heart className="w-[18px] h-[18px]" fill="currentColor" />
-            ) : (
-              <Heart className="w-[18px] h-[18px]" />
-            )}
-            <span className="text-sm font-medium">{likeCount}</span>
+            <Heart
+              size={18}
+              fill={liked ? 'currentColor' : 'none'}
+              strokeWidth={liked ? 0 : 1.8}
+            />
+            {likeCount}
           </button>
 
           <button
             onClick={() => setShowComments(true)}
-            className="flex items-center gap-1.5 btn-press tap-highlight transition-colors"
-            style={{ color: 'var(--color-text-secondary)' }}
+            className="btn-press tap-highlight"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              color: 'var(--color-text-secondary)',
+              fontSize: '0.85rem', fontWeight: 500,
+            }}
           >
-            <MessageCircle className="w-[18px] h-[18px]" />
-            <span className="text-sm font-medium">{commentCount}</span>
+            <MessageCircle size={18} strokeWidth={1.8} />
+            {commentCount}
           </button>
 
           <button
-            className="ml-auto btn-press tap-highlight"
-            style={{ color: 'var(--color-text-secondary)' }}
+            className="btn-press tap-highlight"
+            style={{ marginLeft: 'auto', color: 'var(--color-text-muted)' }}
           >
-            <Share2 className="w-[18px] h-[18px]" />
+            <Share2 size={17} strokeWidth={1.8} />
           </button>
         </div>
-      </div>
+      </article>
 
       <CommentsPanel
         postId={post.id}

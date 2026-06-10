@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import BottomNav from './components/BottomNav.jsx';
-import SideNav from './components/SideNav.jsx';
 import FeedPage from './pages/FeedPage.jsx';
 import WorkoutPage from './pages/WorkoutPage.jsx';
 import AlertsPage from './pages/AlertsPage.jsx';
@@ -22,15 +21,14 @@ function LoadingScreen() {
     >
       <div
         style={{
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           borderRadius: '50%',
-          border: '3px solid rgba(124,58,237,0.2)',
+          border: '3px solid rgba(124,58,237,0.15)',
           borderTopColor: '#7C3AED',
-          animation: 'spin 0.8s linear infinite',
+          animation: 'spin 0.75s linear infinite',
         }}
       />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
@@ -44,8 +42,7 @@ function ProtectedRoute({ children }) {
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-bg-base text-text-primary app-shell">
-      <SideNav />
+    <div className="app-shell">
       <main className="main-content">
         {children}
       </main>

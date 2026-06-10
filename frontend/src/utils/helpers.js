@@ -17,11 +17,11 @@ export function formatDistanceToNow(dateString) {
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-// Format volume: negative → '--', ≥1000 → '8.2t', <1000 → '840kg'
+// Format volume: negative → '--', formats with thousands separators (e.g., 6.600 kg)
 export function formatVolume(kg) {
   if (kg == null || kg < 0) return '--'
-  if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
-  return `${Math.round(kg)}kg`
+  const rounded = Math.round(kg)
+  return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + ' kg'
 }
 
 // Format duration: null, negative, or >600 → '--', else 'Xmin'
