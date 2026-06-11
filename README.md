@@ -2,7 +2,10 @@
 
 Aplicativo de treinos e rede social inspirado no Hevy e Strava. Permite registrar sessões de treino, acompanhar evolução pessoal e interagir com outros usuários.
 
-Desenvolvido com Django, dividido em três módulos: `usuarios`, `treinos` e `social`.
+O projeto é dividido em um back-end (Django REST API) e um front-end (React + Vite SPA).
+
+O Back-end gerencia a lógica nos módulos: `usuarios`, `treinos` e `social`.
+O Front-end consome a API do back-end para entregar a interface interativa.
 
 ---
 
@@ -22,7 +25,7 @@ git clone https://github.com/tmura-lu/halt.git
 cd halt
 ```
 
-### Subindo o projeto
+### Subindo o Back-end e Banco de Dados (Docker)
 
 ```bash
 docker compose up
@@ -35,9 +38,10 @@ Na primeira execução, o container automaticamente:
 
 | Serviço | URL |
 |---|---|
-| Aplicação | http://localhost:8000 |
+| Django API | http://localhost:8000 |
 | Django Admin | http://localhost:8000/admin |
 | Visualizador do banco | http://localhost:8081 |
+| Aplicação Web (Front) | http://localhost:5174 |
 
 Credenciais do admin geradas pelo seed:
 
@@ -46,9 +50,11 @@ usuário: admin
 senha:   senha123
 ```
 
+
 ### Resetar o banco de dados
 
 ```bash
-rm .initialized db.sqlite3
+docker compose down -v
+rm .initialized 
 docker compose up
 ```
