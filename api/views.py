@@ -9,6 +9,8 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.utils import timezone
@@ -19,6 +21,7 @@ from social.models import ComentarioPost, CurtidaPost, Post, PostImagem
 from treinos.models import (
     Exercicio,
     RecordePessoal,
+    SessaoExercicio,
     SessaoTreino,
     TreinoExercicioTemplate,
     TreinoTemplate,
@@ -75,6 +78,49 @@ def logout_api(request):
     """POST /api/auth/logout/"""
     auth_logout(request)
     return JsonResponse({'status': 'logged out'})
+
+
+@csrf_exempt
+@require_POST
+def register_api(request):
+    """POST /api/auth/register/ — JSON body: { username, password, email?, nome? }."""
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'detail': 'Invalid JSON'}, status=400)
+
+    username = body.get('username', '').strip()
+    password = body.get('password', '')
+    email = body.get('email', '').strip()
+    nome = body.get('nome', '').strip()
+
+    if not username:
+        return JsonResponse({'detail': 'Nome de usuário é obrigatório.'}, status=400)
+    if not password:
+        return JsonResponse({'detail': 'Senha é obrigatória.'}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({'detail': 'Este nome de usuário já está em uso.'}, status=400)
+
+    if email and User.objects.filter(email=email).exists():
+        return JsonResponse({'detail': 'Este e-mail já está em uso.'}, status=400)
+
+    # Validate password strength
+    try:
+        validate_password(password)
+    except DjangoValidationError as e:
+        return JsonResponse({'detail': ' '.join(e.messages)}, status=400)
+
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        email=email,
+        nome=nome or username,
+    )
+
+    # Auto-login after registration
+    auth_login(request, user)
+    return JsonResponse(user_to_dict(user), status=201)
 
 
 
@@ -376,10 +422,27 @@ def mark_all_notifications_read(request):
     return JsonResponse({'status': 'ok'})
 
 
-@require_GET
 @require_auth
+@require_http_methods(["GET", "PATCH"])
 def profile(request):
-    """GET /api/profile/ — full profile for current user."""
+    """GET /api/profile/ — full profile for current user.
+       PATCH /api/profile/ — update profile fields.
+    """
+    if request.method == 'PATCH':
+        try:
+            body = json.loads(request.body)
+        except (json.JSONDecodeError, AttributeError):
+            return JsonResponse({'detail': 'Invalid JSON'}, status=400)
+
+        user = request.user
+        allowed_fields = ['nome', 'bio', 'peso_atual', 'altura_cm', 'imagem_perfil_url', 'is_privado']
+        for field in allowed_fields:
+            if field in body:
+                setattr(user, field, body[field])
+        user.save()
+        return JsonResponse(user_to_dict(user))
+
+    # GET:
     user = request.user
     followers = UsuarioSeguimento.objects.filter(seguido=user, is_ativo=True).count()
     following = UsuarioSeguimento.objects.filter(seguidor=user, is_ativo=True).count()
@@ -428,6 +491,201 @@ def profile(request):
         'achievements': achievement_list,
     })
     return JsonResponse(data)
+
+
+@require_auth
+@require_http_methods(["GET", "POST"])
+def workout_sessions(request):
+    """
+    GET  /api/workout/sessions/        — list user sessions (last 20)
+    POST /api/workout/sessions/        — start a new session
+         body: { template_id?: int }   — optional template to base on
+    """
+    if request.method == 'GET':
+        sessions = SessaoTreino.objects.filter(
+            usuario=request.user
+        ).select_related('treino_template').order_by('-iniciado_em')[:20]
+        results = []
+        for s in sessions:
+            results.append({
+                'id': s.id,
+                'template_id': s.treino_template_id,
+                'template_nome': s.treino_template.nome if s.treino_template else None,
+                'iniciado_em': s.iniciado_em.isoformat(),
+                'finalizado_em': s.finalizado_em.isoformat() if s.finalizado_em else None,
+                'volume_total_kg': float(s.volume_total_kg or 0),
+                'observacao': s.observacao or '',
+                'num_exercicios': s.exercicios.count(),
+            })
+        return JsonResponse({'results': results})
+
+    # POST — start new session
+    try:
+        body = json.loads(request.body) if request.body else {}
+    except (json.JSONDecodeError, AttributeError):
+        body = {}
+
+    template_id = body.get('template_id')
+    template = None
+    if template_id:
+        try:
+            template = TreinoTemplate.objects.get(id=template_id)
+        except TreinoTemplate.DoesNotExist:
+            return JsonResponse({'detail': 'Template não encontrado.'}, status=404)
+
+    session = SessaoTreino.objects.create(
+        usuario=request.user,
+        treino_template=template,
+    )
+
+    # If template provided, pre-populate exercises
+    if template:
+        for i, et in enumerate(template.exercicios.select_related('exercicio').order_by('ordem')):
+            SessaoExercicio.objects.create(
+                sessao_treino=session,
+                exercicio=et.exercicio,
+                ordem=i + 1,
+            )
+
+    exercicios_data = []
+    for se in session.exercicios.select_related('exercicio').order_by('ordem'):
+        exercicios_data.append({
+            'id': se.id,
+            'exercicio_id': se.exercicio_id,
+            'exercicio_nome': se.exercicio.nome,
+            'ordem': se.ordem,
+            'series': [],
+        })
+
+    return JsonResponse({
+        'id': session.id,
+        'template_id': session.treino_template_id,
+        'template_nome': session.treino_template.nome if session.treino_template else None,
+        'iniciado_em': session.iniciado_em.isoformat(),
+        'finalizado_em': None,
+        'exercicios': exercicios_data,
+    }, status=201)
+
+
+@csrf_exempt
+@require_auth
+@require_http_methods(["PATCH"])
+def finish_workout_session(request, session_id):
+    """PATCH /api/workout/sessions/<id>/finish/ — finish an active session."""
+    try:
+        session = SessaoTreino.objects.get(id=session_id, usuario=request.user)
+    except SessaoTreino.DoesNotExist:
+        return JsonResponse({'detail': 'Sessão não encontrada.'}, status=404)
+
+    if session.finalizado_em:
+        return JsonResponse({'detail': 'Sessão já finalizada.'}, status=400)
+
+    # Compute total volume from all series
+    from treinos.models import Serie
+    total_vol = 0.0
+    for se in session.exercicios.prefetch_related('series').all():
+        for s in se.series.all():
+            if s.volume_serie:
+                total_vol += float(s.volume_serie)
+    session.volume_total_kg = total_vol
+    session.finalizado_em = timezone.now()
+    session.save()
+    return JsonResponse({
+        'id': session.id,
+        'finalizado_em': session.finalizado_em.isoformat(),
+        'volume_total_kg': float(session.volume_total_kg or 0),
+    })
+
+
+@csrf_exempt
+@require_POST
+@require_auth
+def session_add_exercise(request, session_id):
+    """POST /api/workout/sessions/<id>/exercises/
+    body: { exercicio_id: int }
+    Adds an exercise to an active session.
+    """
+    try:
+        session = SessaoTreino.objects.get(id=session_id, usuario=request.user)
+    except SessaoTreino.DoesNotExist:
+        return JsonResponse({'detail': 'Sessão não encontrada.'}, status=404)
+
+    if session.finalizado_em:
+        return JsonResponse({'detail': 'Sessão já finalizada.'}, status=400)
+
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'detail': 'Invalid JSON'}, status=400)
+
+    ex_id = body.get('exercicio_id')
+    if not ex_id:
+        return JsonResponse({'detail': 'exercicio_id é obrigatório.'}, status=400)
+
+    try:
+        exercicio = Exercicio.objects.get(id=ex_id)
+    except Exercicio.DoesNotExist:
+        return JsonResponse({'detail': 'Exercício não encontrado.'}, status=404)
+
+    ordem = session.exercicios.count() + 1
+    se = SessaoExercicio.objects.create(
+        sessao_treino=session,
+        exercicio=exercicio,
+        ordem=ordem,
+    )
+    return JsonResponse({
+        'id': se.id,
+        'exercicio_id': exercicio.id,
+        'exercicio_nome': exercicio.nome,
+        'ordem': se.ordem,
+        'series': [],
+    }, status=201)
+
+
+@csrf_exempt
+@require_POST
+@require_auth
+def session_log_serie(request, session_id, sessao_exercicio_id):
+    """POST /api/workout/sessions/<sid>/exercises/<eid>/sets/
+    body: { peso_kg?, repeticoes?, tipo_serie? }
+    Logs a set for an exercise in an active session.
+    """
+    from treinos.models import Serie, TipoSerieChoices
+    try:
+        session = SessaoTreino.objects.get(id=session_id, usuario=request.user)
+    except SessaoTreino.DoesNotExist:
+        return JsonResponse({'detail': 'Sessão não encontrada.'}, status=404)
+
+    try:
+        se = SessaoExercicio.objects.get(id=sessao_exercicio_id, sessao_treino=session)
+    except SessaoExercicio.DoesNotExist:
+        return JsonResponse({'detail': 'Exercício da sessão não encontrado.'}, status=404)
+
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'detail': 'Invalid JSON'}, status=400)
+
+    numero = se.series.count() + 1
+    peso = body.get('peso_kg')
+    reps = body.get('repeticoes')
+    tipo = body.get('tipo_serie', TipoSerieChoices.NORMAL)
+
+    serie = Serie.objects.create(
+        sessao_exercicio=se,
+        numero_serie=numero,
+        peso_kg=float(peso) if peso is not None else None,
+        repeticoes=int(reps) if reps is not None else None,
+        tipo_serie=tipo,
+    )
+    return JsonResponse({
+        'id': serie.id,
+        'numero_serie': serie.numero_serie,
+        'peso_kg': float(serie.peso_kg) if serie.peso_kg else None,
+        'repeticoes': serie.repeticoes,
+        'tipo_serie': serie.tipo_serie,
+        'volume_serie': float(serie.volume_serie) if serie.volume_serie else None,
+    }, status=201)
 
 
 @csrf_exempt

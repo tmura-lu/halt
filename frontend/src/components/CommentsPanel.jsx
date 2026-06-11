@@ -10,6 +10,7 @@ export default function CommentsPanel({ postId, isOpen, onClose, onCommentAdded 
   const [newText, setNewText]   = useState('');
   const [loading, setLoading]   = useState(false);
   const [sending, setSending]   = useState(false);
+  const [sendError, setSendError] = useState('');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -27,6 +28,7 @@ export default function CommentsPanel({ postId, isOpen, onClose, onCommentAdded 
     const text = newText.trim();
     if (!text || sending) return;
     setSending(true);
+    setSendError('');
 
     const optimistic = {
       id: `opt-${Date.now()}`,
@@ -44,6 +46,8 @@ export default function CommentsPanel({ postId, isOpen, onClose, onCommentAdded 
       onCommentAdded?.();
     } catch (e) {
       setComments((c) => c.filter((cmt) => cmt.id !== optimistic.id));
+      setNewText(text); // restore text so user can retry
+      setSendError('Não foi possível enviar o comentário. Tente novamente.');
       console.error('Failed to post comment', e);
     } finally {
       setSending(false);
@@ -128,6 +132,23 @@ export default function CommentsPanel({ postId, isOpen, onClose, onCommentAdded 
             })
           )}
         </div>
+
+        {/* Error feedback */}
+        {sendError && (
+          <div
+            style={{
+              margin: '0 16px 8px',
+              padding: '8px 12px',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(239,68,68,0.10)',
+              border: '1px solid rgba(239,68,68,0.25)',
+              fontSize: '0.78rem',
+              color: '#f87171',
+            }}
+          >
+            {sendError}
+          </div>
+        )}
 
         {/* Input */}
         <div

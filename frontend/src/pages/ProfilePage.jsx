@@ -1,24 +1,316 @@
 import { useEffect, useState } from 'react';
-import { getMyProfile } from '../services/api.js';
+import { getMyProfile, updateProfile } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { avatarUrl, formatVolume } from '../utils/helpers.js';
 import StreakCard from '../components/StreakCard.jsx';
 import StatsGrid from '../components/StatsGrid.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
-import { Edit2, Settings, Trophy, TrendingUp } from 'lucide-react';
+import { Edit2, Settings, Trophy, TrendingUp, X, Loader2, LogOut, Lock } from 'lucide-react';
+import api from '../services/api.js';
+import { useNavigate } from 'react-router-dom';
 
+/* ── Edit Profile Modal ─────────────────────────────────────── */
+function EditProfileModal({ profile, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    nome: profile.nome || '',
+    bio: profile.bio || '',
+    peso_atual: profile.peso_atual != null ? String(profile.peso_atual) : '',
+    altura_cm: profile.altura_cm != null ? String(profile.altura_cm) : '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState('');
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      const payload = {
+        nome: form.nome.trim() || undefined,
+        bio: form.bio.trim() || undefined,
+        peso_atual: form.peso_atual ? parseFloat(form.peso_atual) : null,
+        altura_cm: form.altura_cm ? parseFloat(form.altura_cm) : null,
+      };
+      await updateProfile(payload);
+      onSaved();
+      onClose();
+    } catch (e) {
+      setError('Não foi possível salvar. Tente novamente.');
+      console.error('Failed to update profile', e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 50,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+      }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="animate-slide-up"
+        style={{
+          width: '100%', maxWidth: 480, maxHeight: 'calc(90dvh - 65px)',
+          borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
+          background: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
+          borderBottom: 'none',
+          display: 'flex', flexDirection: 'column',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '20px 16px 14px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexShrink: 0, borderBottom: '1px solid var(--color-border-subtle)',
+        }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+            Editar Perfil
+          </h3>
+          <button
+            onClick={onClose}
+            className="btn-press"
+            style={{
+              width: 30, height: 30, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.07)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <X size={15} style={{ color: 'var(--color-text-secondary)' }} />
+          </button>
+        </div>
+
+        {/* Fields */}
+        <div style={{
+          flex: 1, overflowY: 'auto', padding: '16px',
+          display: 'flex', flexDirection: 'column', gap: 14,
+        }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Nome
+            </label>
+            <input
+              type="text"
+              className="input-base"
+              value={form.nome}
+              onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))}
+              placeholder="Seu nome"
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Bio
+            </label>
+            <textarea
+              className="input-base"
+              rows={3}
+              value={form.bio}
+              onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
+              placeholder="Fale um pouco sobre você..."
+              style={{ resize: 'none' }}
+              maxLength={160}
+            />
+            <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4, textAlign: 'right' }}>
+              {form.bio.length}/160
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Peso (kg)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                className="input-base"
+                value={form.peso_atual}
+                onChange={(e) => setForm((p) => ({ ...p, peso_atual: e.target.value }))}
+                placeholder="70.0"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Altura (cm)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                className="input-base"
+                value={form.altura_cm}
+                onChange={(e) => setForm((p) => ({ ...p, altura_cm: e.target.value }))}
+                placeholder="175"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              padding: '8px 12px', borderRadius: 'var(--radius-md)',
+              background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.25)',
+              fontSize: '0.78rem', color: '#f87171',
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '12px 16px 28px', flexShrink: 0, borderTop: '1px solid var(--color-border-subtle)' }}>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-press"
+            style={{
+              width: '100%', padding: '13px',
+              borderRadius: 'var(--radius-xl)',
+              fontWeight: 700, fontSize: '0.9rem', color: '#fff',
+              background: saving ? 'rgba(124,58,237,0.4)' : 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
+              boxShadow: saving ? 'none' : '0 0 20px rgba(124,58,237,0.35)',
+              cursor: saving ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            }}
+          >
+            {saving ? <><Loader2 size={15} style={{ animation: 'spin 0.8s linear infinite' }} /> Salvando…</> : 'Salvar Alterações'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Settings Modal ─────────────────────────────────────────── */
+function SettingsModal({ onClose }) {
+  const navigate = useNavigate();
+  const { refresh } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await api.post('/auth/logout/');
+    } catch {
+      // ignore — session may already be invalid
+    } finally {
+      await refresh();
+      navigate('/login', { replace: true });
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 50,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+      }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="animate-slide-up"
+        style={{
+          width: '100%', maxWidth: 480,
+          borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
+          background: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border-subtle)',
+          borderBottom: 'none',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '20px 16px 14px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid var(--color-border-subtle)',
+        }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+            Configurações
+          </h3>
+          <button
+            onClick={onClose}
+            className="btn-press"
+            style={{
+              width: 30, height: 30, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.07)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <X size={15} style={{ color: 'var(--color-text-secondary)' }} />
+          </button>
+        </div>
+
+        {/* Options */}
+        <div style={{ padding: '8px 0 28px' }}>
+          {/* Theme toggle row */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '14px 16px',
+            borderBottom: '1px solid var(--color-border-subtle)',
+          }}>
+            <span style={{ fontSize: '0.88rem', color: 'var(--color-text-primary)', fontWeight: 500 }}>
+              Tema
+            </span>
+            <ThemeToggle />
+          </div>
+
+          {/* Privacy row (display only) */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '14px 16px',
+            borderBottom: '1px solid var(--color-border-subtle)',
+          }}>
+            <Lock size={15} style={{ color: 'var(--color-text-muted)' }} />
+            <span style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>
+              Privacidade da conta — gerenciar no perfil
+            </span>
+          </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="btn-press tap-highlight"
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '14px 16px',
+              color: '#f87171', fontSize: '0.88rem', fontWeight: 600,
+              cursor: loggingOut ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {loggingOut
+              ? <Loader2 size={16} style={{ animation: 'spin 0.8s linear infinite' }} />
+              : <LogOut size={16} />
+            }
+            {loggingOut ? 'Saindo…' : 'Sair da conta'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── ProfilePage ────────────────────────────────────────────── */
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile]          = useState(null);
   const [loading, setLoading]          = useState(true);
   const [activeTab, setActiveTab]      = useState('pr');
+  const [showEdit, setShowEdit]        = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
-  useEffect(() => {
+  const loadProfile = () => {
     if (!user) return;
+    setLoading(true);
     getMyProfile()
       .then(({ data }) => setProfile(data))
       .catch((e) => console.error('Failed to load profile', e))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   if (authLoading || loading) {
@@ -65,6 +357,7 @@ export default function ProfilePage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <ThemeToggle />
           <button
+            onClick={() => setShowEdit(true)}
             className="btn-press"
             style={{
               width: 34, height: 34, borderRadius: '50%',
@@ -72,10 +365,12 @@ export default function ProfilePage() {
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid var(--color-border-subtle)',
             }}
+            title="Editar perfil"
           >
             <Edit2 size={14} style={{ color: 'var(--color-text-secondary)' }} />
           </button>
           <button
+            onClick={() => setShowSettings(true)}
             className="btn-press"
             style={{
               width: 34, height: 34, borderRadius: '50%',
@@ -83,6 +378,7 @@ export default function ProfilePage() {
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid var(--color-border-subtle)',
             }}
+            title="Configurações"
           >
             <Settings size={14} style={{ color: 'var(--color-text-secondary)' }} />
           </button>
@@ -166,12 +462,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Stats row: Followers | Following | Workouts */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            borderTop: '1px solid var(--color-border-subtle)',
-          }}>
+          {/* Stats row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: '1px solid var(--color-border-subtle)' }}>
             {[
               { label: 'Seguidores', value: followers },
               { label: 'Seguindo',   value: following },
@@ -218,8 +510,7 @@ export default function ProfilePage() {
           background: 'var(--color-bg-surface)',
           border: '1px solid var(--color-border-subtle)',
           borderRadius: 'var(--radius-xl)',
-          padding: 4,
-          gap: 4,
+          padding: 4, gap: 4,
         }}>
           {[
             { key: 'pr',           label: 'Records Pessoais' },
@@ -352,8 +643,7 @@ export default function ProfilePage() {
                       fontSize: 11, fontWeight: 700, padding: '2px 8px',
                       borderRadius: 'var(--radius-pill)',
                       background: 'rgba(234,179,8,0.12)',
-                      color: '#fbbf24',
-                      flexShrink: 0,
+                      color: '#fbbf24', flexShrink: 0,
                     }}>
                       +{a.xp_recompensa}xp
                     </span>
@@ -364,6 +654,18 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* ── Modals ─────────────────────────────────────────── */}
+      {showEdit && (
+        <EditProfileModal
+          profile={profile}
+          onClose={() => setShowEdit(false)}
+          onSaved={loadProfile}
+        />
+      )}
+      {showSettings && (
+        <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
     </div>
   );
 }

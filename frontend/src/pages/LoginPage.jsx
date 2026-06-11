@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import api from '../services/api.js';
 import { getMe } from '../services/api.js';
@@ -23,7 +23,7 @@ export default function LoginPage() {
       await api.get('/csrf/');
       await api.post('/auth/login/', { username, password });
       const { data: userData } = await getMe();
-      login(userData);           // seta o usuário sem resetar `loading`
+      login(userData);
       navigate(from, { replace: true });
     } catch (err) {
       setError(
@@ -34,6 +34,19 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    borderRadius: '0.75rem',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(124,58,237,0.3)',
+    color: '#fff',
+    fontSize: '0.95rem',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+    boxSizing: 'border-box',
   };
 
   return (
@@ -105,17 +118,7 @@ export default function LoginPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 placeholder="seu_usuario"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.75rem',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(124,58,237,0.3)',
-                  color: '#fff',
-                  fontSize: '0.95rem',
-                  outline: 'none',
-                  transition: 'border-color 0.2s',
-                }}
+                style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(124,58,237,0.8)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(124,58,237,0.3)')}
               />
@@ -134,17 +137,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.75rem',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(124,58,237,0.3)',
-                  color: '#fff',
-                  fontSize: '0.95rem',
-                  outline: 'none',
-                  transition: 'border-color 0.2s',
-                }}
+                style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(124,58,237,0.8)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(124,58,237,0.3)')}
               />
@@ -182,14 +175,19 @@ export default function LoginPage() {
           </form>
         </div>
 
+        {/* Link para cadastro */}
         <p className="text-center text-text-muted text-xs mt-6">
-          Administrador?{' '}
-          <a
-            href="/admin/login/"
-            className="text-text-secondary hover:text-text-primary transition-colors"
+          Não tem conta?{' '}
+          <Link
+            to="/register"
+            style={{
+              fontWeight: 600,
+              color: '#a78bfa',
+              textDecoration: 'none',
+            }}
           >
-            Acessar painel
-          </a>
+            Criar Conta
+          </Link>
         </p>
       </div>
     </div>

@@ -95,10 +95,12 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── CORS (React frontend on localhost:5173) ──────────────────────────────────
+# ── CORS (React frontend on localhost:5173 dev / 5174 Docker) ────────────────
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -110,4 +112,6 @@ CSRF_COOKIE_HTTPONLY = False  # JS needs to read it to send X-CSRFToken
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
 ]

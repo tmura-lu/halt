@@ -96,8 +96,8 @@ export default function AlertsPage() {
     try {
       await markAllNotificationsRead();
       const markRead = (list) => list.map((n) => ({ ...n, is_lida: true }));
-      setToday(markRead);
-      setEarlier(markRead);
+      setToday((prev) => markRead(prev));
+      setEarlier((prev) => markRead(prev));
       setUnread(0);
     } catch (e) {
       console.error('Failed to mark all read', e);

@@ -4,9 +4,11 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import FeedPage from './pages/FeedPage.jsx';
 import WorkoutPage from './pages/WorkoutPage.jsx';
+import ActiveWorkoutPage from './pages/ActiveWorkoutPage.jsx';
 import AlertsPage from './pages/AlertsPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 
 function LoadingScreen() {
   return (
@@ -33,10 +35,38 @@ function LoadingScreen() {
   );
 }
 
+/**
+ * Protects routes that require authentication.
+ * Redirects unauthenticated users to /login,
+ * saving the attempted URL so we can redirect back after login.
+ */
 function ProtectedRoute({ children }) {
   const { loading, authenticated } = useAuth();
   if (loading) return <LoadingScreen />;
   if (!authenticated) return <Navigate to="/login" replace />;
+  return children;
+}
+
+/**
+ * Protects routes that require staff/admin privileges.
+ * If the user is authenticated but not staff, redirects to /.
+ * If not authenticated at all, redirects to /login.
+ */
+function AdminRoute({ children }) {
+  const { loading, authenticated, user } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!authenticated) return <Navigate to="/login" replace />;
+  if (!user?.is_staff) return <Navigate to="/" replace />;
+  return children;
+}
+
+/**
+ * Redirects authenticated users away from /login and /register.
+ */
+function GuestRoute({ children }) {
+  const { loading, authenticated } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (authenticated) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -57,7 +87,25 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            {/* ── Guest-only routes ── */}
+            <Route
+              path="/login"
+              element={
+                <GuestRoute>
+                  <LoginPage />
+                </GuestRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <GuestRoute>
+                  <RegisterPage />
+                </GuestRoute>
+              }
+            />
+
+            {/* ── Protected routes ── */}
             <Route
               path="/"
               element={
@@ -71,6 +119,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Layout><WorkoutPage /></Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/workout/active"
+              element={
+                <ProtectedRoute>
+                  <Layout><ActiveWorkoutPage /></Layout>
                 </ProtectedRoute>
               }
             />
@@ -90,6 +146,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* ── Fallback ── */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
