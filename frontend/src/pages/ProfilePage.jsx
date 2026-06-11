@@ -47,6 +47,7 @@ function EditProfileModal({ profile, onClose, onSaved }) {
         position: 'fixed', inset: 0, zIndex: 50,
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
         background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+        paddingBottom: '65px',
       }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
@@ -124,6 +125,7 @@ function EditProfileModal({ profile, onClose, onSaved }) {
               </label>
               <input
                 type="number"
+                min="0"
                 step="0.1"
                 className="input-base"
                 value={form.peso_atual}
@@ -137,6 +139,7 @@ function EditProfileModal({ profile, onClose, onSaved }) {
               </label>
               <input
                 type="number"
+                min="0"
                 step="0.1"
                 className="input-base"
                 value={form.altura_cm}
@@ -205,6 +208,7 @@ function SettingsModal({ onClose }) {
         position: 'fixed', inset: 0, zIndex: 50,
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
         background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+        paddingBottom: '65px',
       }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >

@@ -227,6 +227,7 @@ export default function WorkoutPage() {
             position: 'fixed', inset: 0, zIndex: 50,
             display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
             background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+            paddingBottom: '65px',
           }}
           onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
@@ -235,7 +236,7 @@ export default function WorkoutPage() {
             style={{
               width: '100%',
               maxWidth: 480,
-              maxHeight: '90dvh',
+              maxHeight: 'calc(90dvh - 65px)',
               borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
               background: 'var(--color-bg-surface)',
               border: '1px solid var(--color-border-subtle)',

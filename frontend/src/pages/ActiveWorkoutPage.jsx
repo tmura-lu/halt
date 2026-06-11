@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { finishWorkoutSession } from '../services/api.js';
-import { Dumbbell, Clock, CheckCircle2, X, Loader2 } from 'lucide-react';
+import { finishWorkoutSession, getExercicios, addExerciseToSession, logSerieToSession } from '../services/api.js';
+import { Dumbbell, Clock, CheckCircle2, X, Loader2, Plus, PlusCircle, Check } from 'lucide-react';
 
 function useTimer(startTime) {
   const [elapsed, setElapsed] = useState(0);
@@ -24,20 +24,32 @@ function useTimer(startTime) {
 export default function ActiveWorkoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const session = location.state?.session;
+  const initialSession = location.state?.session;
 
+  const [session, setSession] = useState(initialSession);
+  const [exercises, setExercises] = useState(initialSession?.exercicios || []);
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState('');
   const timer = useTimer(session?.iniciado_em);
 
-  // If arrived without session state, go back to workout
+  const [allExercises, setAllExercises] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addingEx, setAddingEx] = useState(false);
+
+  // States for logging sets: keyed by sessao_exercicio_id
+  const [setForms, setSetForms] = useState({});
+  const [savingSet, setSavingSet] = useState({});
+
   useEffect(() => {
-    if (!session) navigate('/workout', { replace: true });
-  }, [session, navigate]);
+    if (!initialSession) navigate('/workout', { replace: true });
+    
+    // Fetch available exercises for adding new ones
+    getExercicios()
+      .then(({ data }) => setAllExercises(data.results || []))
+      .catch((e) => console.error('Failed to load exercises', e));
+  }, [initialSession, navigate]);
 
   if (!session) return null;
-
-  const exercises = session.exercicios || [];
 
   const handleFinish = async () => {
     setError('');
@@ -53,8 +65,63 @@ export default function ActiveWorkoutPage() {
     }
   };
 
+  const handleAddExercise = async (exId) => {
+    if (addingEx) return;
+    setAddingEx(true);
+    try {
+      const { data } = await addExerciseToSession(session.id, exId);
+      setExercises((prev) => [...prev, data]);
+      setShowAddModal(false);
+    } catch (e) {
+      console.error('Failed to add exercise', e);
+      setError('Erro ao adicionar exercício.');
+    } finally {
+      setAddingEx(false);
+    }
+  };
+
+  const handleSetFormChange = (seId, field, value) => {
+    setSetForms((prev) => ({
+      ...prev,
+      [seId]: {
+        ...prev[seId],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveSet = async (seId) => {
+    const form = setSetForms[seId] || {};
+    const peso = form.peso_kg;
+    const reps = form.repeticoes;
+    if (!peso || !reps) return; // Must have weight and reps
+
+    setSavingSet((prev) => ({ ...prev, [seId]: true }));
+    try {
+      const { data } = await logSerieToSession(session.id, seId, {
+        peso_kg: peso,
+        repeticoes: reps
+      });
+      
+      // Update exercise with new set
+      setExercises((prev) => prev.map((ex) => {
+        if (ex.id === seId) {
+          return { ...ex, series: [...(ex.series || []), data] };
+        }
+        return ex;
+      }));
+      
+      // Clear form
+      setSetForms((prev) => ({ ...prev, [seId]: { peso_kg: '', repeticoes: '' } }));
+    } catch (e) {
+      console.error('Failed to save set', e);
+    } finally {
+      setSavingSet((prev) => ({ ...prev, [seId]: false }));
+    }
+  };
+
   return (
-    <div style={{ paddingBottom: 80 }}>
+    <div style={{ paddingBottom: 140 }}>
       {/* ── Header ── */}
       <header
         style={{
@@ -121,7 +188,7 @@ export default function ActiveWorkoutPage() {
       </header>
 
       {/* ── Exercises list ── */}
-      <div style={{ padding: '16px' }}>
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         {exercises.length === 0 ? (
           <div
             style={{
@@ -156,30 +223,29 @@ export default function ActiveWorkoutPage() {
                 lineHeight: 1.5,
               }}
             >
-              Nenhum exercício pré-definido.{'\n'}Treine o que quiser e finalize quando terminar.
+              Nenhum exercício pré-definido.{'\n'}Adicione exercícios para começar.
             </p>
           </div>
         ) : (
-          <div
-            style={{
-              background: 'var(--color-bg-surface)',
-              border: '1px solid var(--color-border-subtle)',
-              borderRadius: 'var(--radius-xl)',
-              overflow: 'hidden',
-            }}
-          >
-            {exercises.map((ex, i) => (
+          exercises.map((ex, i) => (
+            <div
+              key={ex.id}
+              style={{
+                background: 'var(--color-bg-surface)',
+                border: '1px solid var(--color-border-subtle)',
+                borderRadius: 'var(--radius-xl)',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Exercise Header */}
               <div
-                key={ex.id}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 14,
                   padding: '14px 16px',
-                  borderBottom:
-                    i < exercises.length - 1
-                      ? '1px solid var(--color-border-subtle)'
-                      : 'none',
+                  borderBottom: '1px solid var(--color-border-subtle)',
+                  background: 'rgba(255,255,255,0.02)',
                 }}
               >
                 <div
@@ -201,27 +267,109 @@ export default function ActiveWorkoutPage() {
                   <p
                     style={{
                       fontWeight: 600,
-                      fontSize: '0.9rem',
+                      fontSize: '0.95rem',
                       color: 'var(--color-text-primary)',
                       lineHeight: 1.25,
                     }}
                   >
                     {ex.exercicio_nome}
                   </p>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: 'var(--color-text-muted)',
-                      marginTop: 2,
-                    }}
-                  >
-                    Exercício {i + 1}
-                  </p>
                 </div>
               </div>
-            ))}
-          </div>
+
+              {/* Sets List */}
+              <div style={{ padding: '8px 16px' }}>
+                {/* Headers */}
+                <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr 50px', gap: 8, padding: '4px 0 8px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 8 }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textAlign: 'center' }}>Série</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textAlign: 'center' }}>kg</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textAlign: 'center' }}>Reps</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textAlign: 'center' }}></span>
+                </div>
+
+                {/* Logged Sets */}
+                {(ex.series || []).map((set, idx) => (
+                  <div key={set.id} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr 50px', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                      {idx + 1}
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '4px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                      {set.peso_kg}
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '4px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                      {set.repeticoes}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Check size={14} strokeWidth={3} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* New Set Input Row */}
+                <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 1fr 50px', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                  <div style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                    {(ex.series?.length || 0) + 1}
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      placeholder="kg"
+                      value={setForms[ex.id]?.peso_kg || ''}
+                      onChange={(e) => handleSetFormChange(ex.id, 'peso_kg', e.target.value)}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid var(--color-border-subtle)', borderRadius: '6px', padding: '6px', color: '#fff', textAlign: 'center', outline: 'none' }}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      placeholder="reps"
+                      value={setForms[ex.id]?.repeticoes || ''}
+                      onChange={(e) => handleSetFormChange(ex.id, 'repeticoes', e.target.value)}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid var(--color-border-subtle)', borderRadius: '6px', padding: '6px', color: '#fff', textAlign: 'center', outline: 'none' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => handleSaveSet(ex.id)}
+                      disabled={savingSet[ex.id] || !setForms[ex.id]?.peso_kg || !setForms[ex.id]?.repeticoes}
+                      className="btn-press"
+                      style={{
+                        width: 30, height: 30, borderRadius: '8px',
+                        background: (!setForms[ex.id]?.peso_kg || !setForms[ex.id]?.repeticoes) ? 'rgba(124,58,237,0.3)' : 'var(--color-accent)',
+                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: 'none', cursor: (!setForms[ex.id]?.peso_kg || !setForms[ex.id]?.repeticoes) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {savingSet[ex.id] ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Check size={16} strokeWidth={3} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
         )}
+
+        {/* Add Exercise Button */}
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="btn-press tap-highlight"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            padding: '14px', borderRadius: 'var(--radius-xl)',
+            background: 'rgba(124,58,237,0.1)', border: '1px dashed rgba(124,58,237,0.4)',
+            color: 'var(--color-accent)', fontWeight: 600, fontSize: '0.95rem',
+            marginTop: exercises.length > 0 ? 8 : 0
+          }}
+        >
+          <PlusCircle size={20} />
+          Adicionar Exercício
+        </button>
       </div>
 
       {/* ── Error ── */}
@@ -284,6 +432,87 @@ export default function ActiveWorkoutPage() {
           {finishing ? 'Finalizando…' : 'Finalizar Treino'}
         </button>
       </div>
+
+      {/* ── Add Exercise Modal ── */}
+      {showAddModal && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+            paddingBottom: '65px',
+          }}
+          onClick={(e) => e.target === e.currentTarget && setShowAddModal(false)}
+        >
+          <div
+            className="animate-slide-up"
+            style={{
+              width: '100%', maxWidth: 480, maxHeight: 'calc(90dvh - 65px)',
+              borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
+              background: 'var(--color-bg-surface)',
+              border: '1px solid var(--color-border-subtle)',
+              borderBottom: 'none',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            <div style={{
+              padding: '20px 16px 14px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexShrink: 0, borderBottom: '1px solid var(--color-border-subtle)',
+            }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                Selecione um Exercício
+              </h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="btn-press"
+                style={{
+                  width: 30, height: 30, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.07)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <X size={15} style={{ color: 'var(--color-text-secondary)' }} />
+              </button>
+            </div>
+            
+            <div style={{
+              flex: 1, overflowY: 'auto', padding: '8px 16px',
+            }}>
+              {allExercises.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--color-text-muted)' }}>
+                  Carregando exercícios...
+                </div>
+              ) : (
+                allExercises.map((ex) => (
+                  <button
+                    key={ex.id}
+                    onClick={() => handleAddExercise(ex.id)}
+                    disabled={addingEx}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)',
+                      background: 'transparent', textAlign: 'left', cursor: 'pointer',
+                      opacity: addingEx ? 0.5 : 1,
+                    }}
+                  >
+                    <div style={{
+                      width: 32, height: 32, borderRadius: '8px',
+                      background: 'rgba(124,58,237,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'var(--color-accent)'
+                    }}>
+                      <Plus size={16} />
+                    </div>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                      {ex.nome}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

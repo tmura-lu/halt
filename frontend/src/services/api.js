@@ -58,6 +58,10 @@ export const startWorkoutSession = (templateId = null) =>
 export const finishWorkoutSession = (sessionId) =>
   api.patch(`/workout/sessions/${sessionId}/finish/`)
 export const getWorkoutSessions = () => api.get('/workout/sessions/')
+export const addExerciseToSession = (sessionId, exerciseId) =>
+  api.post(`/workout/sessions/${sessionId}/exercises/`, { exercicio_id: exerciseId })
+export const logSerieToSession = (sessionId, sessionExerciseId, data) =>
+  api.post(`/workout/sessions/${sessionId}/exercises/${sessionExerciseId}/sets/`, data)
 
 // ── Exercícios ────────────────────────────────────────────────────────────────
 export const getExercicios = () => api.get('/exercicios/')

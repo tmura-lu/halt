@@ -438,7 +438,10 @@ def profile(request):
         allowed_fields = ['nome', 'bio', 'peso_atual', 'altura_cm', 'imagem_perfil_url', 'is_privado']
         for field in allowed_fields:
             if field in body:
-                setattr(user, field, body[field])
+                val = body[field]
+                if field in ['peso_atual', 'altura_cm'] and val is not None and float(val) < 0:
+                    return JsonResponse({'detail': f'{field} não pode ser negativo.'}, status=400)
+                setattr(user, field, val)
         user.save()
         return JsonResponse(user_to_dict(user))
 
@@ -670,6 +673,11 @@ def session_log_serie(request, session_id, sessao_exercicio_id):
     peso = body.get('peso_kg')
     reps = body.get('repeticoes')
     tipo = body.get('tipo_serie', TipoSerieChoices.NORMAL)
+
+    if peso is not None and float(peso) < 0:
+        return JsonResponse({'detail': 'Peso não pode ser negativo.'}, status=400)
+    if reps is not None and int(reps) < 0:
+        return JsonResponse({'detail': 'Repetições não podem ser negativas.'}, status=400)
 
     serie = Serie.objects.create(
         sessao_exercicio=se,
